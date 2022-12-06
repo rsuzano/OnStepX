@@ -17,7 +17,8 @@ jobs:
           python-version: "3.9"
       - name: install
         run: |
-          pip install -U https://github.com/platformio/platformio/archive/develop.zip
+#         pip install -U https://github.com/platformio/platformio/archive/develop.zip
+          pip install -U https://github.com/platformio/platformio-core/archive/refs/tags/v6.1.5.zip
           pio pkg install --global --platform symlink://.
       - name: Create directory structure
         run: |
