@@ -18,7 +18,7 @@ jobs:
       - name: install
         run: |
           pip install -U https://github.com/platformio/platformio-core/archive/refs/tags/v6.1.5.zip
-          pio pkg install --global --platform symlink://.
+          pio pkg install --global --platform espressif32
       - name: Create directory structure
         run: |
           rsync -r  --remove-source-files --exclude=".*" --exclude="platformio.ini"  src/* src/src
