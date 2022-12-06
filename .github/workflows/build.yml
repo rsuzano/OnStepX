@@ -24,14 +24,13 @@ jobs:
           rsync -r  --remove-source-files --exclude=".*" --exclude="platformio.ini"  src/* src/src
           find . -depth -type d -empty -delete
           mv *.h *.ino src/
-      - name: Build examples
+      - name: Build
         run: |
           pio run
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.1
         with:
           path: |
-           - .pio/build/esp32dev/firmware.bin
-           - .pio/build/esp32dev/firmware.elf
+           - .
            
           
