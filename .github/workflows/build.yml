@@ -20,6 +20,7 @@ jobs:
           pip install -U https://github.com/platformio/platformio/archive/develop.zip
           pio pkg install --global --platform symlink://.
       - name: Create directory structure
+        run: |
           rsync -r  --remove-source-files --exclude=".*" --exclude="platformio.ini"  src/* src/src
           find . -depth -type d -empty -delete
           mv *.h *.ino src/
