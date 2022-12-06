@@ -21,6 +21,16 @@
   #define SERIAL_B_RX           13
   #define SERIAL_B_TX           5
 #endif
+// Use the following settings for any TMC UART driver (TMC2209) that may be present
+#if defined(STEP_DIR_TMC_UART_PRESENT)
+  #if defined(SERIAL_TMC_HARDWARE_UART)
+    #define SERIAL_TMC          Serial2          // Use a single hardware serial port to up to four drivers
+    #define SERIAL_TMC_BAUD     460800           // Baud rate
+    #define SERIAL_TMC_RX       13               // Recieving data
+    #define SERIAL_TMC_TX       5               // Transmit data
+    #define SERIAL_TMC_ADDRESS_MAP(x) ((x==4)?2 : x) // Axis1(0) is 0, Axis2(1) is 1, Axis3(2) is 2, Axis4(3) is 3, Axis5(4) is 2
+  #endif
+#endif
 
 // Specify the ESP32 I2C pins
 #define I2C_SDA_PIN             21

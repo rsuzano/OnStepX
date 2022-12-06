@@ -1,0 +1,35 @@
+name: BuildOnStep
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: "recursive"
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.9"
+        run: |
+          pip install -U https://github.com/platformio/platformio/archive/develop.zip
+          pio pkg install --global --platform symlink://.
+      - name: Create directory structure
+          rsync -r  --remove-source-files --exclude=".*" --exclude="platformio.ini"  src/* src/src
+          find . -depth -type d -empty -delete
+          mv *.h *.ino src/
+      - name: Build examples
+        run: |
+          pio run
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          path: |
+           - .pio/build/esp32dev/firmware.bin
+           - .pio/build/esp32dev/firmware.elf
+           
+          
