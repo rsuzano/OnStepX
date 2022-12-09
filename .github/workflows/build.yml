@@ -32,5 +32,25 @@ jobs:
         uses: actions/upload-artifact@v3.1.1
         with:
           path: .pio/build/esp32dev/firmware.bin
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          release_name: ${{ steps.version.outputs.version }}
+          tag_name: ${{ github.ref }}
+          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: upload linux artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: .pio/build/esp32dev/firmware.bin
+          asset_name: firmware.bin
+          asset_content_type: application/zip
            
           
