@@ -99,14 +99,21 @@ void Mount::begin() {
 
   #if TRACK_AUTOSTART == ON
     if (park.state == PS_PARKED) {
-      VLF("MSG: Mount, parked autostart tracking ignored");
+      #if GOTO_FEATURE == ON
+        if (site.isDateTimeReady()) {
+          VLF("MSG: Mount, autostart tracking from park");
+          park.restore(true);
+        } else {
+          VLF("MSG: Mount, autostart tracking from park requires date/time");
+        }
+      #endif
     } else {
-      VLF("MSG: Mount, set tracking sidereal");
-      tracking(true);
-      trackingRate = hzToSidereal(SIDEREAL_RATE_HZ);
-      if (!site.isDateTimeReady()) {
-        VLF("MSG: Mount, set date/time is unknown so limits are disabled");
-        limits.enabled(false);
+      if (transform.mountType != ALTAZM || site.isDateTimeReady()) {
+        VLF("MSG: Mount, autostart tracking sidereal");
+        tracking(true);
+        trackingRate = hzToSidereal(SIDEREAL_RATE_HZ);
+      } else {
+        VLF("MSG: Mount, can't autostart ALTAZM tracking without date/time");
       }
     }
   #else
@@ -139,7 +146,6 @@ void Mount::tracking(bool state) {
   if (state == true) {
     enable(state);
     trackingState = TS_SIDEREAL;
-    atHome = false;
   } else
 
   if (state == false) {
@@ -345,7 +351,7 @@ void Mount::updatePosition(CoordReturn coordReturn) {
     if (coordReturn == CR_MOUNT_ALT) transform.equToAlt(&current); else
     if (coordReturn == CR_MOUNT_HOR || coordReturn == CR_MOUNT_ALL) transform.equToHor(&current);
   }
-  if (atHome) current.pierSide = PIER_SIDE_NONE;
+  if (isHome()) current.pierSide = PIER_SIDE_NONE;
 }
 
 Mount mount;

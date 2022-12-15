@@ -144,9 +144,11 @@ CommandError Goto::requestSync(Coordinate *coords, PierSideSelect pierSideSelect
     transform.nativeToMount(coords);
   }
 
-  CommandError e = setTarget(coords, pierSideSelect);
+  CommandError e = setTarget(coords, pierSideSelect, false);
   if (e != CE_NONE) return e;
   
+  if (mount.isHome()) mount.tracking(true);
+
   double a1, a2;
   transform.mountToInstrument(&target, &a1, &a2);
   axis1.setInstrumentCoordinate(a1);
@@ -154,7 +156,6 @@ CommandError Goto::requestSync(Coordinate *coords, PierSideSelect pierSideSelect
 
   limits.enabled(true);
   mount.syncToEncoders(true);
-  if (mount.isHome()) mount.tracking(true);
 
   VLF("MSG: Mount, sync instrument coordinates updated");
 
@@ -162,10 +163,11 @@ CommandError Goto::requestSync(Coordinate *coords, PierSideSelect pierSideSelect
 }
 
 // checks for valid target and determines pier side (Mount coordinate system)
-CommandError Goto::setTarget(Coordinate *coords, PierSideSelect pierSideSelect) {
+CommandError Goto::setTarget(Coordinate *coords, PierSideSelect pierSideSelect, bool isGoto) {
 
   CommandError e = validate();
   if (e == CE_SLEW_ERR_IN_STANDBY && mount.isHome()) { mount.enable(true); e = validate(); }
+  if (e == CE_NONE && isGoto && limits.isAboveOverhead()) e = CE_SLEW_ERR_OUTSIDE_LIMITS;
   if (e != CE_NONE) return e;
 
   target = *coords;
@@ -179,7 +181,7 @@ CommandError Goto::setTarget(Coordinate *coords, PierSideSelect pierSideSelect) 
   Coordinate current = mount.getMountPosition(CR_MOUNT);
 
   target.pierSide = current.pierSide;
-  e = limits.validateCoords(&target);
+  e = limits.validateTarget(&target);
   if (e != CE_NONE) return e;
 
   if (transform.meridianFlips) {
@@ -280,7 +282,7 @@ CommandError Goto::validate() {
   if (state != GS_NONE)        return CE_SLEW_IN_SLEW;
   if (guide.state != GU_NONE)  return CE_SLEW_IN_MOTION;
   if (mount.isSlewing())       return CE_SLEW_IN_MOTION;
-  if (limits.isError())        return CE_SLEW_ERR_OUTSIDE_LIMITS;
+  if (limits.isGotoError())    return CE_SLEW_ERR_OUTSIDE_LIMITS;
   return CE_NONE;
 }
 

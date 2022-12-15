@@ -85,7 +85,7 @@
 #define AXIS1_M1_PIN            14               // SPI SCK
 #define AXIS1_M2_PIN            23               // SPI CS (UART TX)
 #if AXIS4_POWER_DOWN != ON
-#define AXIS1_M3_PIN            AUX2_PIN         // SPI MISO (UART RX)
+  #define AXIS1_M3_PIN          AUX2_PIN         // SPI MISO (UART RX)
 #endif
 #define AXIS1_STEP_PIN          18
 #define AXIS1_DIR_PIN           0                // [must be high at boot 0]
@@ -99,7 +99,7 @@
 #define AXIS2_M1_PIN            14               // SPI SCK
 #define AXIS2_M2_PIN            5                // SPI CS (UART TX)
 #if AXIS4_POWER_DOWN != ON
-#define AXIS2_M3_PIN            AUX2_PIN         // SPI MISO (UART RX)
+  #define AXIS2_M3_PIN          AUX2_PIN         // SPI MISO (UART RX)
 #endif
 #define AXIS2_STEP_PIN          27
 #define AXIS2_DIR_PIN           26
@@ -117,9 +117,7 @@
 #define AXIS3_DIR_PIN           15
 
 // For focuser1 stepper driver
-#ifdef SERIAL_TMC_HARDWARE_UART
-  #define AXIS4_ENABLE_PIN      OFF
-#else
+#if !defined(SERIAL_TMC_HARDWARE_UART) && AXIS4_POWER_DOWN == ON
   #define AXIS4_ENABLE_PIN      AUX2_PIN
 #endif
 #define AXIS4_M0_PIN            OFF              // SPI MOSI
