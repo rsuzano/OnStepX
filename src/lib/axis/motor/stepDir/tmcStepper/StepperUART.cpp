@@ -165,12 +165,12 @@ bool StepDirTmcUART::validateParameters(float param1, float param2, float param3
 }
 
 void StepDirTmcUART::modeMicrostepTracking() {
-  driver->microsteps(settings.microsteps);
+  if (settings.microsteps == 1) driver->microsteps(0); else driver->microsteps(settings.microsteps);
 }
 
 int StepDirTmcUART::modeMicrostepSlewing() {
   if (microstepRatio > 1) {
-    driver->microsteps(settings.microstepsSlewing);
+    if (settings.microstepsSlewing == 1) driver->microsteps(0); else driver->microsteps(settings.microstepsSlewing);
   }
   return microstepRatio;
 }
@@ -203,7 +203,6 @@ void StepDirTmcUART::updateStatus() {
   if (settings.status == ON) {
     if ((long)(millis() - timeLastStatusUpdate) > 200) {
 
-      uint32_t status_word;
       TMC2208_n::DRV_STATUS_t status_result;
       if (settings.model == TMC2208) {
         status_result.sr = ((TMC2208Stepper*)driver)->DRV_STATUS();

@@ -83,11 +83,9 @@ void Mount::begin() {
     limits.settings.pastMeridianW = Deg360;
   }
 
-  #if GOTO_FEATURE == ON
-    goTo.init();
-    library.init();
-    park.init();
-  #endif
+  goTo.init();
+  library.init();
+  park.init();
 
   #if AXIS1_PEC == ON
     pec.init();
@@ -145,7 +143,7 @@ Coordinate Mount::getMountPosition(CoordReturn coordReturn) {
 void Mount::tracking(bool state) {
   if (state == true) {
     enable(state);
-    trackingState = TS_SIDEREAL;
+    if (isEnabled()) trackingState = TS_SIDEREAL;
   } else
 
   if (state == false) {
@@ -161,6 +159,9 @@ void Mount::enable(bool state) {
   static bool firstEnable = true;
 
   if (state == true) {
+    #if LIMIT_STRICT == ON
+      if (!site.dateIsReady || !site.timeIsReady) return;
+    #endif
     if (firstEnable) mountStatus.ready();
     firstEnable = false;
   } else

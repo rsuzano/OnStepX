@@ -165,6 +165,10 @@
   #error "Configuration (Config.h): Setting AXIS1_SENSE_HOME unknown, use OFF or HIGH/LOW and HYST() and/or THLD() as described in comments."
 #endif
 
+#if (AXIS1_SENSE_HOME) != OFF && (AXIS2_SENSE_HOME) == OFF
+  #error "Configuration (Config.h): Enabling AXIS1_SENSE_HOME requires enabling AXIS2_SENSE_HOME also."
+#endif
+
 #if (AXIS1_SENSE_LIMIT_MIN) != OFF && (AXIS1_SENSE_LIMIT_MIN) < 0
   #error "Configuration (Config.h): Setting AXIS1_SENSE_LIMIT_MIN unknown, use OFF or HIGH/LOW and HYST() and/or THLD() as described in comments."
 #endif
@@ -262,6 +266,10 @@
 
 #if AXIS2_TANGENT_ARM_CORRECTION != ON && AXIS2_TANGENT_ARM_CORRECTION != OFF
   #error "Configuration (Config.h): Setting AXIS2_TANGENT_ARM_CORRECTION unknown, use OFF or ON."
+#endif
+
+#if AXIS2_TANGENT_ARM == OFF && (AXIS2_SENSE_HOME) != OFF && (AXIS1_SENSE_HOME) == OFF
+  #error "Configuration (Config.h): Enabling AXIS2_SENSE_HOME requires enabling AXIS1_SENSE_HOME or AXIS2_TANGENT_ARM."
 #endif
 
 // MOUNT TYPE
@@ -374,6 +382,19 @@
 
 #if TRACK_BACKLASH_RATE < 2 && TRACK_BACKLASH_RATE > 100
   #error "Configuration (Config.h): Setting TRACK_BACKLASH_RATE unknown, use a value between 2 and 100 (x Sidereal.)"
+#endif
+
+// GOTO_FEATURE CHECKS
+#if GOTO_FEATURE == OFF && TRACK_BACKLASH_RATE > 20
+  #error "Configuration (Config.h): Setting TRACK_BACKLASH_RATE must be <= 20 when GOTO_FEATURE is OFF."
+#endif
+
+#if GOTO_FEATURE == OFF && (MOUNT_TYPE == GEM_TA || MOUNT_TYPE == GEM_TAC)
+  #error "Configuration (Config.h): Setting GEM_TA/GEM_TAC not available when GOTO_FEATURE is OFF."
+#endif
+
+#if GOTO_FEATURE == OFF && (MOUNT_TYPE == FORK_TA || MOUNT_TYPE == FORK_TAC)
+  #error "Configuration (Config.h): Setting FORK_TA/FORK_TAC not available when GOTO_FEATURE is OFF."
 #endif
 
 // PIER SIDE BEHAVIOUR
@@ -1056,8 +1077,8 @@
 
 // FOCUSER TEMPERATURE ---------------------------
 #if FOCUSER_TEMPERATURE != OFF && \
-    FOCUSER_TEMPERATURE & DS_MASK != DS18B20 && \
-    FOCUSER_TEMPERATURE & DS_MASK != DS18S20 && \
+    (FOCUSER_TEMPERATURE & DS_MASK) != DS18B20 && \
+    (FOCUSER_TEMPERATURE & DS_MASK) != DS18S20 && \
     (FOCUSER_TEMPERATURE < TEMPERATURE_FIRST || FOCUSER_TEMPERATURE > TEMPERATURE_LAST)
   #error "Configuration (Config.h): Setting FOCUSER_TEMPERATURE unknown, use OFF or TEMPERATURE device (from Constants.h)"
 #endif
@@ -1090,50 +1111,50 @@
 #endif
 
 #if FEATURE1_TEMP != OFF && \
-    FEATURE1_TEMP & DS_MASK != DS18B20 && \
-    FEATURE1_TEMP & DS_MASK != DS18S20 && \
+    (FEATURE1_TEMP & DS_MASK) != DS18B20 && \
+    (FEATURE1_TEMP & DS_MASK) != DS18S20 && \
     (FEATURE1_TEMP < TEMPERATURE_FIRST || FEATURE1_TEMP > TEMPERATURE_LAST)
   #error "Configuration (Config.h): Setting FEATURE1_TEMP unknown, use OFF or TEMPERATURE device (from Constants.h)"
 #endif
 #if FEATURE2_TEMP != OFF && \
-    FEATURE2_TEMP & DS_MASK != DS18B20 && \
-    FEATURE2_TEMP & DS_MASK != DS18S20 && \
+    (FEATURE2_TEMP & DS_MASK) != DS18B20 && \
+    (FEATURE2_TEMP & DS_MASK) != DS18S20 && \
     (FEATURE2_TEMP < TEMPERATURE_FIRST || FEATURE2_TEMP > TEMPERATURE_LAST)
   #error "Configuration (Config.h): Setting FEATURE2_TEMP unknown, use OFF or TEMPERATURE device (from Constants.h)"
 #endif
 #if FEATURE3_TEMP != OFF && \
-    FEATURE3_TEMP & DS_MASK != DS18B20 && \
-    FEATURE3_TEMP & DS_MASK != DS18S20 && \
+    (FEATURE3_TEMP & DS_MASK) != DS18B20 && \
+    (FEATURE3_TEMP & DS_MASK) != DS18S20 && \
     (FEATURE3_TEMP < TEMPERATURE_FIRST || FEATURE3_TEMP > TEMPERATURE_LAST)
   #error "Configuration (Config.h): Setting FEATURE3_TEMP unknown, use OFF or TEMPERATURE device (from Constants.h)"
 #endif
 #if FEATURE4_TEMP != OFF && \
-    FEATURE4_TEMP & DS_MASK != DS18B20 && \
-    FEATURE4_TEMP & DS_MASK != DS18S20 && \
+    (FEATURE4_TEMP & DS_MASK) != DS18B20 && \
+    (FEATURE4_TEMP & DS_MASK) != DS18S20 && \
     (FEATURE4_TEMP < TEMPERATURE_FIRST || FEATURE4_TEMP > TEMPERATURE_LAST)
   #error "Configuration (Config.h): Setting FEATURE4_TEMP unknown, use OFF or TEMPERATURE device (from Constants.h)"
 #endif
 #if FEATURE5_TEMP != OFF && \
-    FEATURE5_TEMP & DS_MASK != DS18B20 && \
-    FEATURE5_TEMP & DS_MASK != DS18S20 && \
+    (FEATURE5_TEMP & DS_MASK) != DS18B20 && \
+    (FEATURE5_TEMP & DS_MASK) != DS18S20 && \
     (FEATURE5_TEMP < TEMPERATURE_FIRST || FEATURE5_TEMP > TEMPERATURE_LAST)
   #error "Configuration (Config.h): Setting FEATURE5_TEMP unknown, use OFF or TEMPERATURE device (from Constants.h)"
 #endif
 #if FEATURE6_TEMP != OFF && \
-    FEATURE6_TEMP & DS_MASK != DS18B20 && \
-    FEATURE6_TEMP & DS_MASK != DS18S20 && \
+    (FEATURE6_TEMP & DS_MASK) != DS18B20 && \
+    (FEATURE6_TEMP & DS_MASK) != DS18S20 && \
     (FEATURE6_TEMP < TEMPERATURE_FIRST || FEATURE6_TEMP > TEMPERATURE_LAST)
   #error "Configuration (Config.h): Setting FEATURE6_TEMP unknown, use OFF or TEMPERATURE device (from Constants.h)"
 #endif
 #if FEATURE7_TEMP != OFF && \
-    FEATURE7_TEMP & DS_MASK != DS18B20 && \
-    FEATURE7_TEMP & DS_MASK != DS18S20 && \
+    (FEATURE7_TEMP & DS_MASK) != DS18B20 && \
+    (FEATURE7_TEMP & DS_MASK) != DS18S20 && \
     (FEATURE7_TEMP < TEMPERATURE_FIRST || FEATURE7_TEMP > TEMPERATURE_LAST)
   #error "Configuration (Config.h): Setting FEATURE7_TEMP unknown, use OFF or TEMPERATURE device (from Constants.h)"
 #endif
 #if FEATURE8_TEMP != OFF && \
-    FEATURE8_TEMP & DS_MASK != DS18B20 && \
-    FEATURE8_TEMP & DS_MASK != DS18S20 && \
+    (FEATURE8_TEMP & DS_MASK) != DS18B20 && \
+    (FEATURE8_TEMP & DS_MASK) != DS18S20 && \
     (FEATURE8_TEMP < TEMPERATURE_FIRST || FEATURE8_TEMP > TEMPERATURE_LAST)
   #error "Configuration (Config.h): Setting FEATURE8_TEMP unknown, use OFF or TEMPERATURE device (from Constants.h)"
 #endif

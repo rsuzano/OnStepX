@@ -20,7 +20,7 @@ void Limits::init() {
   if (LimitSettingsSize < sizeof(LimitSettings)) { nv.initError = true; DL("ERR: Limits::init(), LimitSettingsSize error"); }
 
   // write the default settings to NV
-  if (!nv.hasValidKey()) {
+  if (!nv.hasValidKey() || nv.isNull(NV_MOUNT_LIMITS_BASE, sizeof(LimitSettings))) {
     VLF("MSG: Mount, limits writing defaults to NV");
     nv.writeBytes(NV_MOUNT_LIMITS_BASE, &settings, sizeof(LimitSettings));
   }
@@ -203,7 +203,7 @@ void Limits::poll() {
             autoFlipDelayCycles = 10;
             VLF("MSG: Mount, start automatic meridian flip");
             Coordinate target = mount.getMountPosition();
-            CommandError e = goTo.request(&target, PSS_EAST_ONLY, false);
+            CommandError e = goTo.request(target, PSS_EAST_ONLY, false);
             if (e != CE_NONE) {
               stopAxis1(GA_FORWARD);
               error.meridian.west = true;
@@ -245,7 +245,7 @@ void Limits::poll() {
           autoFlipDelayCycles = 10;
           VLF("MSG: Mount, start automatic meridian flip");
           Coordinate target = mount.getMountPosition();
-          CommandError e = goTo.request(&target, PSS_WEST_ONLY, false);
+          CommandError e = goTo.request(target, PSS_WEST_ONLY, false);
           if (e != CE_NONE) {
             stopAxis1(GA_FORWARD);
             error.limit.axis1.max = true;

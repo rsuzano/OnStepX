@@ -114,7 +114,8 @@
 #define DEW_HEATER                  3      // control an dew heater
 #define INTERVALOMETER              4      // control an camera shutter
 #define MOMENTARY_SWITCH            5      // control an simple momentary on/off switch
-#define AUX_FEATURE_PURPOSE_LAST    5
+#define HIDDEN_SWITCH               6      // control an hidden on/off switch (for controlling a pin state at boot)
+#define AUX_FEATURE_PURPOSE_LAST    6
 
 // GPIO devices (pin# 512 up to 543)
 // these can work for most digital I/O EXCEPT: STEP/DIR, 1-WIRE/I2C/SPI (CS is ok), the ST4 port, and the PPS pin
@@ -136,7 +137,7 @@
 // task manager
 #define TASKS_MAX                   48     // up to 48 tasks
 #define TASKS_SKIP_MISSED                  // just skip missed tasks if too late
-#define TASKS_HWTIMERS              3      // up to 4 hardware timers
+#define TASKS_HWTIMERS              3      // up to 3 hardware timers
 
 // default start of axis class hardware timers
 #define AXIS_HARDWARE_TIMER_BASE    2      // in the OnStepX timer#1 is the sidereal clock
@@ -146,7 +147,7 @@
 #define SERIAL_ST4_SERVER_PRESENT
 
 // NV -------------------------------------------------------------------------------------------------------------------
-#define INIT_NV_KEY                 583928929UL
+#define INIT_NV_KEY                 583928931UL
 
 #define NV_KEY                      0      // bytes: 4   , 4
 #define NV_SITE_NUMBER              4      // bytes: 1   , 1
@@ -169,4 +170,5 @@
 #define NV_ROTATOR_SETTINGS_BASE    785    // bytes: 7   , 7
 #define NV_FEATURE_SETTINGS_BASE    792    // bytes: 3 *8, 24
 #define NV_TELESCOPE_SETTINGS_BASE  816    // bytes: 2   , 2
-#define NV_PEC_BUFFER_BASE          818    // Bytes: ?   , ? + (PEC_BUFFER_SIZE_LIMIT - 1)
+
+#define NV_LAST                     817
