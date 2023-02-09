@@ -412,3 +412,4 @@ Release/*
 .pio/libdeps/esp32dev/EspSoftwareSerial/src/circular_queue/Delegate.h
 .pio/libdeps/esp32dev/EspSoftwareSerial/src/circular_queue/ghostl.h
 .pio/libdeps/esp32dev/EspSoftwareSerial/src/circular_queue/MultiDelegate.h
+Extended.config.h
