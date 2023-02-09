@@ -22,12 +22,18 @@ void Home::init() {
   #else
     if (transform.mountType == ALTAZM) position.a = degToRad(AXIS2_HOME_DEFAULT); else position.d = degToRad(AXIS2_HOME_DEFAULT);
   #endif
+  if (transform.mountType != ALTAZM) {
+    axis1.setReverse(site.locationEx.latitude.sign < 0.0);
+  }
   position.pierSide = PIER_SIDE_NONE;
 }
 
 // move mount to the home position
 CommandError Home::request() {
-  #if GOTO_FEATURE == ON
+    #if LIMIT_STRICT == ON
+      if (!site.dateIsReady || !site.timeIsReady) return CE_SLEW_ERR_IN_STANDBY;
+    #endif
+
     if (goTo.state != GS_NONE) return CE_SLEW_IN_MOTION;
     if (guide.state != GU_NONE) {
       if (guide.state == GU_HOME_GUIDE) guide.stop();
@@ -58,7 +64,7 @@ CommandError Home::request() {
       #if AXIS2_TANGENT_ARM == OFF
         state = HS_HOMING;
         if (transform.mountType == ALTAZM) transform.horToEqu(&position);
-        CommandError result = goTo.request(&position, PSS_EAST_ONLY, false);
+        CommandError result = goTo.request(position, PSS_EAST_ONLY, false);
         if (result != CE_NONE) { VLF("WRN: Mount, moving to home goto failed"); }
         return result;
       #else
@@ -68,7 +74,6 @@ CommandError Home::request() {
         axis2.autoGoto(degToRadF((float)(SLEW_ACCELERATION_DIST)));
       #endif
     }
-  #endif
   return CE_NONE;
 }
 

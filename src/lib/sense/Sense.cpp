@@ -48,8 +48,8 @@ int SenseInput::isOn() {
     if (sample >= threshold + hysteresis) value = HIGH;
     if (sample < threshold - hysteresis) value = LOW;
   } else {
-    int sample = digitalReadEx(pin); delayMicroseconds(10); int sample1 = digitalReadEx(pin);
-    if (stableSample != sample || sample1 != sample) { stableStartMs = millis(); stableSample = sample; }
+    int sample = digitalReadEx(pin);
+    if (stableSample != sample) { stableStartMs = millis(); stableSample = sample; }
     long stableMs = (long)(millis() - stableStartMs);
     if (stableMs >= hysteresis) value = stableSample;
   }
@@ -58,25 +58,27 @@ int SenseInput::isOn() {
 }
 
 int SenseInput::changed() {
-  int value = lastValue;
+  int value = lastChangedValue;
   if (isAnalog) {
     int sample = analogRead(pin);
     if (sample >= threshold + hysteresis) value = HIGH;
     if (sample < threshold - hysteresis) value = LOW;
   } else {
-    int sample = digitalReadEx(pin); delayMicroseconds(10); int sample1 = digitalReadEx(pin);
-    if (stableSample != sample || sample1 != sample) { stableStartMs = millis(); stableSample = sample; }
+    int sample = digitalReadEx(pin);
+    if (stableSample != sample) { stableStartMs = millis(); stableSample = sample; }
     long stableMs = (long)(millis() - stableStartMs);
     if (stableMs >= hysteresis) value = stableSample;
   }
-  return lastValue != value;
+  bool result = lastChangedValue != value;
+  lastChangedValue = value;
+  return result;
 }
 
 void SenseInput::poll() {
   int value = lastValue;
   if (!isAnalog) {
-    int sample = digitalReadEx(pin); delayMicroseconds(10); int sample1 = digitalReadEx(pin);
-    if (stableSample != sample || sample1 != sample) { stableStartMs = millis(); stableSample = sample; }
+    int sample = digitalReadEx(pin);
+    if (stableSample != sample) { stableStartMs = millis(); stableSample = sample; }
     long stableMs = (long)(millis() - stableStartMs);
     if (stableMs > hysteresis) value = stableSample;
   }
