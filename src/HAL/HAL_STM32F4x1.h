@@ -6,7 +6,7 @@
 
 #define HAL_FAST_PROCESSOR
 
-// 1/200 second sidereal timer
+// Base rate for critical task timing
 #define HAL_FRACTIONAL_SEC 200.0F
 
 // Analog read and write
@@ -59,7 +59,7 @@
     #define NV_ADDRESS 0x57
   #endif
   #include "../lib/nv/NV_24XX.h"
-  #define HAL_NV_INIT() nv.init(E2END + 1, true, 0, false, &HAL_Wire, NV_ADDRESS);
+  #define HAL_NV_INIT() nv.init(E2END + 1, true, 0, false, &HAL_Wire, NV_ADDRESS)
 #endif
 
 //--------------------------------------------------------------------------------------------------

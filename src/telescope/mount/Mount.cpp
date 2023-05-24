@@ -51,7 +51,9 @@ void Mount::init() {
 
 void Mount::begin() {
   axis1.calibrate();
+  axis1.enable(MOUNT_ENABLE_IN_STANDBY == ON);
   axis2.calibrate();
+  axis2.enable(MOUNT_ENABLE_IN_STANDBY == ON);
 
   // initialize the critical subsystems
   site.init();
@@ -121,6 +123,10 @@ void Mount::begin() {
     #endif
   #endif
 
+  #if ALIGN_MAX_NUM_STARS > 1 && ALIGN_MODEL_MEMORY == ON
+    transform.align.modelRead();
+  #endif
+
   VF("MSG: Mount, start tracking monitor task (rate 1000ms priority 6)... ");
   if (tasks.add(1000, 0, true, 6, mountWrapper, "MntTrk")) { VLF("success"); } else { VLF("FAILED!"); }
 
@@ -162,11 +168,11 @@ void Mount::enable(bool state) {
     #if LIMIT_STRICT == ON
       if (!site.dateIsReady || !site.timeIsReady) return;
     #endif
-    if (firstEnable) mountStatus.ready();
-    firstEnable = false;
-  } else
 
-  if (state == false) {
+    if (firstEnable) { mountStatus.ready(); }
+
+    firstEnable = false;
+  } else {
     trackingState = TS_NONE;
     update();
   }
@@ -175,22 +181,17 @@ void Mount::enable(bool state) {
   axis2.enable(state);
 }
 
-// allow syncing to the encoders instead of from them
-void Mount::syncToEncoders(bool state) {
-  syncToEncodersEnabled = state;
-}
-
 // updates the tracking rates, etc. as appropriate for the mount state
 // called once a second by poll() but available here for immediate action
 void Mount::update() {
   static int lastStatusFlashMs = 0;
   int statusFlashMs = 0;
 
-#if GOTO_FEATURE == ON
+  #if GOTO_FEATURE == ON
   if (goTo.state == GS_NONE && guide.state < GU_GUIDE) {
-#else
+  #else
   if (guide.state < GU_GUIDE) {
-#endif
+  #endif
     if (trackingState != TS_SIDEREAL) {
       trackingRateAxis1 = 0.0F;
       trackingRateAxis2 = 0.0F;
@@ -216,6 +217,7 @@ void Mount::update() {
     statusFlashMs = SF_SLEWING;
     axis2.setFrequencyBase(0.0F);
   }
+
   if (statusFlashMs != lastStatusFlashMs) {
     lastStatusFlashMs = statusFlashMs;
     mountStatus.flashRate(statusFlashMs);
@@ -224,7 +226,6 @@ void Mount::update() {
 }
 
 void Mount::poll() {
-
   #ifdef HAL_NO_DOUBLE_PRECISION
     #define DiffRange  0.0087266463F         // 30 arc-minutes in radians
     #define DiffRange2 0.017453292F          // 60 arc-minutes in radians
@@ -240,7 +241,7 @@ void Mount::poll() {
     return;
   }
 
-  if (transform.mountType != ALTAZM && settings.rc == RC_NONE) {
+  if (transform.mountType != ALTAZM && settings.rc == RC_NONE && trackingRateOffsetRA == 0.0F && trackingRateOffsetDec == 0.0F) {
     trackingRateAxis1 = trackingRate;
     trackingRateAxis2 = 0.0F;
     update();
@@ -281,9 +282,22 @@ void Mount::poll() {
     transform.topocentricToObservedPlace(&behind); Y;
   }
 
+  // drop the dual axis if not enabled
+  if (settings.rc != RC_REFRACTION_DUAL && settings.rc != RC_MODEL_DUAL) { behind.d = ahead.d; }
+
+  // apply tracking rate offset to equatorial coordinates
+  float timeInSeconds = radToHrs(DiffRange)*3600.0F;
+  float trackingRateOffsetRadsRA = siderealToRad(trackingRateOffsetRA)*timeInSeconds;
+  float trackingRateOffsetRadsDec = siderealToRad(trackingRateOffsetDec)*timeInSeconds;
+  ahead.h -= trackingRateOffsetRadsRA;
+  behind.h += trackingRateOffsetRadsRA;
+  ahead.d += trackingRateOffsetRadsDec;
+  behind.d -= trackingRateOffsetRadsDec;
+
   // transfer to variables named appropriately for mount coordinates
   float aheadAxis1, aheadAxis2, behindAxis1, behindAxis2;
   if (transform.mountType == ALTAZM) {
+    transform.equToHor(&ahead);
     aheadAxis1 = ahead.z;
     aheadAxis2 = ahead.a;
     behindAxis1 = behind.z;
@@ -299,16 +313,12 @@ void Mount::poll() {
   if (aheadAxis1 < -Deg90 && behindAxis1 > Deg90) aheadAxis1 += Deg360;
   if (behindAxis1 < -Deg90 && aheadAxis1 > Deg90) behindAxis1 += Deg360;
   float rate1 = (aheadAxis1 - behindAxis1)/DiffRange2;
-  if (fabs(trackingRateAxis1 - rate1) <= 0.005F)
-    trackingRateAxis1 = (trackingRateAxis1*9.0F + rate1)/10.0F; else trackingRateAxis1 = rate1;
+  if (fabs(trackingRateAxis1 - rate1) <= 0.005F) trackingRateAxis1 = (trackingRateAxis1*9.0F + rate1)/10.0F; else trackingRateAxis1 = rate1;
 
-  // calculate the Axis2 Dec/Alt tracking rate (if dual axis or ALTAZM mode)
-  if (settings.rc == RC_REFRACTION_DUAL || settings.rc == RC_MODEL_DUAL || transform.mountType == ALTAZM) {
-    float rate2;
-    rate2 = (aheadAxis2 - behindAxis2)/DiffRange2;
-    if (current.pierSide == PIER_SIDE_WEST) rate2 = -rate2;
-    if (fabs(trackingRateAxis2 - rate2) <= 0.005F) trackingRateAxis2 = (trackingRateAxis2*9.0F + rate2)/10.0F; else trackingRateAxis2 = rate2;
-  } else trackingRateAxis2 = 0.0F;
+  // calculate the Axis2 Dec/Alt tracking rate
+  float rate2 = (aheadAxis2 - behindAxis2)/DiffRange2;
+  if (current.pierSide == PIER_SIDE_WEST) rate2 = -rate2;
+  if (fabs(trackingRateAxis2 - rate2) <= 0.005F) trackingRateAxis2 = (trackingRateAxis2*9.0F + rate2)/10.0F; else trackingRateAxis2 = rate2;
 
   // override for special case of near a celestial pole
   if (fabs(declination) > Deg85) {

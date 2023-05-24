@@ -248,14 +248,16 @@ bool StepDirTmcUART::enable(bool state) {
 // calibrate the motor driver if required
 void StepDirTmcUART::calibrate() {
   if (settings.decay == STEALTHCHOP || settings.decaySlewing == STEALTHCHOP) {
-    VF("MSG: StepDirDriver"); V(axisNumber); VL(", TMC standstill automatic current calibration");
+    VF("MSG: StepDirDriver Axis"); V(axisNumber); VL(", TMC standstill automatic current calibration");
     driver->irun(mAToCs(settings.currentRun));
     driver->ihold(mAToCs(settings.currentRun));
     if (settings.model == TMC2208) {
+      ((TMC2208Stepper*)driver)->pwm_autograd(DRIVER_TMC_STEPPER_AUTOGRAD);
       ((TMC2208Stepper*)driver)->pwm_autoscale(true);
       ((TMC2208Stepper*)driver)->en_spreadCycle(false);
     } else
     if (settings.model == TMC2209) { // also handles TMC2226
+      ((TMC2209Stepper*)driver)->pwm_autograd(DRIVER_TMC_STEPPER_AUTOGRAD);
       ((TMC2209Stepper*)driver)->pwm_autoscale(true);
       ((TMC2209Stepper*)driver)->en_spreadCycle(false);
     }

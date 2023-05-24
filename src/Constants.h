@@ -76,9 +76,11 @@
 #define TLS_FIRST                   1
 #define DS3231                      1      // DS3231 RTC on I2C
 #define DS3234                      2      // DS3234 RTC on SPI (DS3234_CS_PIN) Makuna library
-#define TEENSY                      3      // TEENSY3.2 RTC (Built-in)
-#define GPS                         4      // GPS device
-#define TLS_LAST                    4
+#define SD3031                      3      // SD3031 RTC on I2C
+#define TEENSY                      4      // TEENSY3.2 RTC (Built-in)
+#define GPS                         5      // GPS device
+#define NTP                         6      // NTP
+#define TLS_LAST                    6
 
 // PIER SIDE
 #define PIER_SIDE_FIRST             1
@@ -117,18 +119,6 @@
 #define HIDDEN_SWITCH               6      // control an hidden on/off switch (for controlling a pin state at boot)
 #define AUX_FEATURE_PURPOSE_LAST    6
 
-// GPIO devices (pin# 512 up to 543)
-// these can work for most digital I/O EXCEPT: STEP/DIR, 1-WIRE/I2C/SPI (CS is ok), the ST4 port, and the PPS pin
-#define GPIO_FIRST                  1
-#define DS2413                      1      // DS2413 2-channel GPIO
-#define MCP23008                    2      // MCP23008 8-channel GPIO
-#define MCP23017                    3      // MCP23017 16-channel GPIO
-#define X9555                       4      // TCA/PCA9555 16-channel GPIO
-#define X8575                       5      // PCF8575 16-channel GPIO
-#define SWS                         6      // Smart Web Server 8-channel GPIO (usually on the four Encoder pins, if otherwise unused)
-#define SSR74HC595                  7      // 74HC595 8,16,24,32-channel GPIO (serial shift register, output only)
-#define GPIO_LAST                   7
-
 // --------------------------------------------------------------------------------------------------------------------------
 
 // a short string describing this product
@@ -147,7 +137,7 @@
 #define SERIAL_ST4_SERVER_PRESENT
 
 // NV -------------------------------------------------------------------------------------------------------------------
-#define INIT_NV_KEY                 583928931UL
+#define INIT_NV_KEY                 583928934UL
 
 #define NV_KEY                      0      // bytes: 4   , 4
 #define NV_SITE_NUMBER              4      // bytes: 1   , 1
@@ -166,9 +156,9 @@
 #define NV_ALIGN_MODEL_BASE         238    // bytes: 32  , 32
 #define NV_AXIS_SETTINGS_REVERT     270    // bytes: 2   , 2
 #define NV_AXIS_SETTINGS_BASE       272    // bytes: 45*9, 405
-#define NV_FOCUSER_SETTINGS_BASE    677    // bytes: 18*6, 108
-#define NV_ROTATOR_SETTINGS_BASE    785    // bytes: 7   , 7
-#define NV_FEATURE_SETTINGS_BASE    792    // bytes: 3 *8, 24
-#define NV_TELESCOPE_SETTINGS_BASE  816    // bytes: 2   , 2
+#define NV_FOCUSER_SETTINGS_BASE    677    // bytes: 20*6, 120
+#define NV_ROTATOR_SETTINGS_BASE    797    // bytes: 11  , 11
+#define NV_FEATURE_SETTINGS_BASE    808    // bytes: 3 *8, 24
+#define NV_TELESCOPE_SETTINGS_BASE  832    // bytes: 2   , 2
 
-#define NV_LAST                     817
+#define NV_LAST                     833

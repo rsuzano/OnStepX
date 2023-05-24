@@ -10,7 +10,9 @@
 
   #if AXIS3_ENCODER == AB
     Quadrature encAxis3(AXIS3_ENCODER_A_PIN, AXIS3_ENCODER_B_PIN, 3);
-  #elif AXIS1_ENCODER == CW_CCW
+  #elif AXIS3_ENCODER == AB_ESP32
+    QuadratureEsp32 encAxis3(AXIS3_ENCODER_A_PIN, AXIS3_ENCODER_B_PIN, 3);
+  #elif AXIS3_ENCODER == CW_CCW
     CwCcw encAxis3(AXIS3_ENCODER_A_PIN, AXIS3_ENCODER_B_PIN, 3);
   #elif AXIS3_ENCODER == PULSE_DIR
     PulseDir encAxis3(AXIS3_ENCODER_A_PIN, AXIS3_ENCODER_B_PIN, 3);
@@ -23,7 +25,7 @@
   #endif
 
   #if AXIS3_SERVO_FEEDBACK == FB_PID
-    Pid pidAxis3(AXIS3_SERVO_P, AXIS3_SERVO_I, AXIS3_SERVO_D, AXIS3_SERVO_P_GOTO, AXIS3_SERVO_I_GOTO, AXIS3_SERVO_D_GOTO);
+    Pid pidAxis3(AXIS3_PID_P, AXIS3_PID_I, AXIS3_PID_D, AXIS3_PID_P_GOTO, AXIS3_PID_I_GOTO, AXIS3_PID_D_GOTO, AXIS3_PID_SENSITIVITY);
   #endif
 
   #if defined(AXIS3_SERVO_DC)
@@ -36,7 +38,7 @@
     ServoTmc2209 driver3(3, &ServoPinsAxis3, &ServoSettingsAxis3);
   #endif
 
-  ServoMotor motor3(3, ((ServoDriver*)&driver3), &encAxis3, &pidAxis3, &servoControlAxis3, AXIS3_SERVO_SYNC_THRESHOLD);
+  ServoMotor motor3(3, ((ServoDriver*)&driver3), &encAxis3, AXIS3_ENCODER_ORIGIN, AXIS3_ENCODER_REVERSE == ON, &pidAxis3, &servoControlAxis3, AXIS3_SYNC_THRESHOLD);
 #endif
 
 #ifdef AXIS3_STEP_DIR_PRESENT

@@ -59,6 +59,10 @@ void Goto::init() {
   if (settings.usPerStepCurrent < usPerStepBase/2.0F) settings.usPerStepCurrent = usPerStepBase/2.0F;
   if (settings.usPerStepCurrent > usPerStepBase*2.0F) settings.usPerStepCurrent = usPerStepBase*2.0F;
 
+  if (AXIS1_SYNC_THRESHOLD != OFF || AXIS2_SYNC_THRESHOLD != OFF) absoluteEncodersPresent = true;
+  if (AXIS1_HOME_TOLERANCE != 0.0F || AXIS2_HOME_TOLERANCE != 0.0F ||
+      AXIS1_TARGET_TOLERANCE != 0.0F || AXIS2_TARGET_TOLERANCE != 0.0F || absoluteEncodersPresent) encodersPresent = true;
+
   updateAccelerationRates();
 }
 
@@ -81,6 +85,8 @@ CommandError Goto::request(Coordinate coords, PierSideSelect pierSideSelect, boo
   if (e == CE_SLEW_IN_SLEW) { stop(); return e; }
   if (e != CE_NONE) return e;
 
+  lastAlignTarget = target;
+
   // handle special case of a tangent arm mount
   #if AXIS2_TANGENT_ARM == ON
     double a1, a2;
@@ -91,29 +97,32 @@ CommandError Goto::request(Coordinate coords, PierSideSelect pierSideSelect, boo
   #endif
 
   limits.enabled(true);
-  mount.syncToEncoders(false);
-  if (mount.isHome()) mount.tracking(true);
+  mount.syncFromOnStepToEncoders = false;
+  if (firstGoto) {
+    mount.tracking(true);
+    firstGoto = false;
+  }
   guide.backlashEnableControl(true);
 
-  // allow slewing near target for Eq modes if not too close to the poles
+  // allow slewing near target for Eq modes but disable for alt/az, parking, homing if encoders are not present
+  nearDestinationRefineStages = 0;
   slewDestinationDistHA = 0.0;
   slewDestinationDistDec = 0.0;
-  if (transform.mountType != ALTAZM && 
-      park.state != PS_PARKING &&
-      home.state != HS_HOMING &&
-      fabs(target.d) < Deg90 - degToRad(GOTO_OFFSET)) {
-    slewDestinationDistHA = degToRad(GOTO_OFFSET);
-    slewDestinationDistDec = degToRad(GOTO_OFFSET);
-    if (target.pierSide == PIER_SIDE_WEST) slewDestinationDistDec = -slewDestinationDistDec;
+  if ((encodersPresent || (park.state != PS_PARKING && home.state != HS_HOMING))) {
+    nearDestinationRefineStages = GOTO_REFINE_STAGES;
+    if (transform.mountType != ALTAZM) { 
+      slewDestinationDistHA = degToRad(GOTO_OFFSET);
+      slewDestinationDistDec = degToRad(GOTO_OFFSET);
+      if (target.pierSide == PIER_SIDE_WEST) slewDestinationDistDec = -slewDestinationDistDec;
+    }
   }
 
   // prepare for goto
   Coordinate current = mount.getMountPosition(CR_MOUNT_HOR);
   state = GS_GOTO;
-  stage = GG_NEAR_DESTINATION;
+  stage = GG_NEAR_DESTINATION_START;
   start = current;
   destination = target;
-  nearDestinationRefineStages = 1;
 
   // add waypoint if needed
   if (transform.mountType != ALTAZM && MFLIP_SKIP_HOME == OFF && start.pierSide != destination.pierSide) {
@@ -182,7 +191,7 @@ CommandError Goto::requestSync(Coordinate coords, PierSideSelect pierSideSelect,
   axis2.setInstrumentCoordinate(a2);
 
   limits.enabled(true);
-  mount.syncToEncoders(true);
+  mount.syncFromOnStepToEncoders = true;
 
   VLF("MSG: Mount, sync instrument coordinates updated");
 
@@ -193,7 +202,10 @@ CommandError Goto::requestSync(Coordinate coords, PierSideSelect pierSideSelect,
 CommandError Goto::setTarget(Coordinate *coords, PierSideSelect pierSideSelect, bool isGoto) {
 
   CommandError e = validate();
-  if (e == CE_SLEW_ERR_IN_STANDBY && mount.isHome()) { mount.enable(true); e = validate(); }
+  if (e == CE_SLEW_ERR_IN_STANDBY && (encodersPresent || mount.isHome())) {
+    mount.enable(true);
+    e = validate();
+  }
   if (e == CE_NONE && isGoto && limits.isAboveOverhead()) e = CE_SLEW_ERR_OUTSIDE_LIMITS;
   if (e != CE_NONE) return e;
 
@@ -289,6 +301,7 @@ CommandError Goto::setTarget(Coordinate *coords, PierSideSelect pierSideSelect, 
   if (target.pierSide != PIER_SIDE_WEST) target.pierSide = PIER_SIDE_EAST;
 
   if (transform.mountType == ALTAZM) transform.horToEqu(&target); else transform.equToHor(&target);
+  transform.observedPlaceToMount(&target);
   transform.hourAngleToRightAscension(&target, false);
 
   return CE_NONE;
@@ -332,11 +345,11 @@ CommandError Goto::alignAddStar() {
     Coordinate mountPosition = mount.getMountPosition(CR_MOUNT_ALL);
 
     // update the targets HA and Horizon coords as necessary
-    transform.rightAscensionToHourAngle(&target, true);
-    if (transform.mountType == ALTAZM) transform.equToHor(&target);
+    transform.rightAscensionToHourAngle(&lastAlignTarget, true);
+    if (transform.mountType == ALTAZM) transform.equToHor(&lastAlignTarget);
 
     #if ALIGN_MAX_NUM_STARS > 1
-      e = transform.align.addStar(alignState.currentStar, alignState.lastStar, &target, &mountPosition);
+      e = transform.align.addStar(alignState.currentStar, alignState.lastStar, &lastAlignTarget, &mountPosition);
     #endif
     if (e == CE_NONE) alignState.currentStar++;
   }
@@ -399,6 +412,22 @@ void Goto::poll() {
     axis2.autoSlewAbort();
   }
 
+  // abort any goto that might hang!
+  if (axis1.isSlewing()) {
+    if (!axis1.nearTarget()) nearTargetTimeoutAxis1 = millis();
+    if ((long)(millis() - nearTargetTimeoutAxis1) > 15000) {
+      DLF("WRN: Mount, goto axis1 timed out aborting slew!");
+      axis1.autoSlewAbort();
+    }
+  }
+  if (axis1.isSlewing()) {
+    if (!axis2.nearTarget()) nearTargetTimeoutAxis2 = millis();
+    if ((long)(millis() - nearTargetTimeoutAxis2) > 15000) {
+      DLF("WRN: Mount, goto axis2 timed out aborting slew!");
+      axis2.autoSlewAbort();
+    }
+  }
+
   if (!mount.isSlewing()) {
     if (stage == GG_WAYPOINT_AVOID) {
       VLF("MSG: Mount, goto waypoint reached");
@@ -413,16 +442,30 @@ void Goto::poll() {
       meridianFlipHome.resume = false;
 
       VLF("MSG: Mount, goto home reached");
-      stage = GG_NEAR_DESTINATION;
+      stage = GG_NEAR_DESTINATION_START;
       destination = target;
       startAutoSlew();
     } else
 
-    if (stage == GG_NEAR_DESTINATION) {
-      if (slewDestinationDistHA != 0.0 || transform.mountType == ALTAZM) {
+    if (stage == GG_NEAR_DESTINATION_START) {
+      if (nearDestinationRefineStages >= 1) {
+        VLF("MSG: Mount, goto near destination wait started");
+        nearDestinationTimeout = millis() + GOTO_SETTLE_TIME;
+        stage = GG_NEAR_DESTINATION_WAIT;
+      } else stage = GG_NEAR_DESTINATION;
+    } else
 
-        if (transform.mountType != ALTAZM || !nearDestinationRefineStages) stage = GG_DESTINATION;
-        nearDestinationRefineStages--;
+    if (stage == GG_NEAR_DESTINATION_WAIT) {
+      if ((long)(millis() - nearDestinationTimeout) > 0) {
+        VLF("MSG: Mount, goto near destination wait done");
+        stage = GG_NEAR_DESTINATION;
+      }
+    } else
+
+    if (stage == GG_NEAR_DESTINATION) {
+      if (nearDestinationRefineStages >= 1) {
+
+        if (--nearDestinationRefineStages) stage = GG_NEAR_DESTINATION_START; else stage = GG_DESTINATION;
 
         VLF("MSG: Mount, goto near destination reached");
         destination = target;
@@ -470,12 +513,14 @@ void Goto::poll() {
 
   // keep updating the axis targets to match the mount target
   // but allow timeout to stop tracking to guarantee synchronization
-  if (!axis1.nearTarget() || !axis2.nearTarget()) nearTargetTimeout = millis();
+  if (AXIS1_TARGET_TOLERANCE != 0.0F || AXIS2_TARGET_TOLERANCE != 0.0F || !axis1.nearTarget() || !axis2.nearTarget()) nearTargetTimeout = millis();
 
   if (mount.isTracking()) {
+    target.r += siderealToRad(mount.trackingRateOffsetRA)/FRACTIONAL_SEC;
+    target.d += siderealToRad(mount.trackingRateOffsetDec)/FRACTIONAL_SEC;
     transform.rightAscensionToHourAngle(&target, false);
-    if (stage == GG_NEAR_DESTINATION || stage == GG_DESTINATION) {
-      if (millis() - nearTargetTimeout < 4000) {
+    if (stage >= GG_NEAR_DESTINATION_START) {
+      if (millis() - nearTargetTimeout < 5000) {
         Coordinate nearTarget = target;
         nearTarget.h -= slewDestinationDistHA;
         nearTarget.d -= slewDestinationDistDec;
@@ -494,6 +539,9 @@ void Goto::poll() {
 // start slews with approach correction and parking support
 CommandError Goto::startAutoSlew() {
   CommandError e;
+
+  nearTargetTimeoutAxis1 = millis();
+  nearTargetTimeoutAxis2 = millis();
 
   if (stage == GG_NEAR_DESTINATION || stage == GG_DESTINATION) {
     destination.h -= slewDestinationDistHA;

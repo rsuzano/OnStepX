@@ -24,6 +24,7 @@
 #define STANDARD                    -19
 #define PERSISTENT                  -20
 #define ERRORS_ONLY                 -21
+#define KALMAN                      -22
 #define INVALID                     -127
 
 // driver (step/dir interface, usually for stepper motors)
@@ -76,12 +77,12 @@
 // servo encoder (must match Encoder library)
 #define ENC_FIRST                   1
 #define AB                          1      // AB quadrature encoder
-#define CW_CCW                      2      // clockwise/counter-clockwise encoder
-#define PULSE_DIR                   3      // pulse/direction encoder
-#define PULSE_ONLY                  4      // pulse only encoder
-#define AS37_H39B_B                 5      // Broadcom AS37-H39B-B BISS-C interface encoder
-#define SERIAL_BRIDGE               6      // serial bridge to encoders
-#define SWS_BRIDGE                  7      // uses SWS encoder coordinate pushes
+#define AB_ESP32                    2      // AB quadrature encoder (using fast ESP32 hardware decode)
+#define CW_CCW                      3      // clockwise/counter-clockwise encoder
+#define PULSE_DIR                   4      // pulse/direction encoder
+#define PULSE_ONLY                  5      // pulse only encoder
+#define AS37_H39B_B                 6      // Broadcom AS37-H39B-B BISS-C interface encoder
+#define SERIAL_BRIDGE               7      // serial bridge to encoders
 #define ENC_LAST                    7
 
 // servo feedback (must match Encoder library)
@@ -110,6 +111,18 @@
 #define NVE_MID                     1   // mid (~ 100K writes)
 #define NVE_HIGH                    2   // high (~ 1M writes)
 #define NVE_VHIGH                   3   // very high (> 1M writes)
+
+// GPIO devices (pin# 512 up to 543)
+// these can work for most digital I/O EXCEPT: STEP/DIR, 1-WIRE/I2C/SPI (CS is ok), the ST4 port, and the PPS pin
+#define GPIO_FIRST                  1
+#define DS2413                      1      // DS2413 2-channel GPIO
+#define MCP23008                    2      // MCP23008 8-channel GPIO
+#define MCP23017                    3      // MCP23017 16-channel GPIO
+#define X9555                       4      // TCA/PCA9555 16-channel GPIO
+#define X8575                       5      // PCF8575 16-channel GPIO
+#define SWS                         6      // Smart Web Server 8-channel GPIO (usually on the four Encoder pins, if otherwise unused)
+#define SSR74HC595                  7      // 74HC595 8,16,24,32-channel GPIO (serial shift register, output only)
+#define GPIO_LAST                   7
 
 // angular
 #define RAD_DEG_RATIO               57.29577951308232L

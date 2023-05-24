@@ -19,16 +19,15 @@ class ServoDriver {
     // decodes driver model and sets up the pin modes
     virtual void init();
 
-    // secondary way to enable down not using the enable pin
-    // this is a required method for the Axis class, even if it does nothing
-    virtual void enable(bool state);
+    // enable or disable the driver using the enable pin or other method
+    virtual void enable(bool state) { UNUSED(state); }
 
     // get the control range to the motor (-velocityMax to velocityMax) defaults to ANALOG_WRITE_RANGE
     // must be ready at object creation!
     virtual float getMotorControlRange() { return velocityMax; }
 
-    // set motor velocity
-    virtual void setMotorVelocity(float velocity);
+    // set motor velocity, returns velocity actually set
+    virtual float setMotorVelocity(float velocity);
 
     // returns motor direction (DIR_FORMWARD or DIR_REVERSE)
     Direction getMotorDirection() { return motorDirection; };
@@ -40,6 +39,9 @@ class ServoDriver {
     // get status info.
     // this is a required method for the Axis class
     DriverStatus getStatus() { return status; }
+   
+    // calibrate the motor if required
+    virtual void calibrate() {}
 
   protected:
     int axisNumber;

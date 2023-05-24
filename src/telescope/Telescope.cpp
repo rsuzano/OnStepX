@@ -55,15 +55,33 @@ InitError initError;
 
 Telescope::Telescope() {
   // early init for stepper drivers
+  #ifdef AXIS1_STEP_DIR_PRESENT
   if (AXIS1_STEP_PIN >= 0 && AXIS1_STEP_PIN <= 255) pinMode(AXIS1_STEP_PIN, OUTPUT);
+  #endif
+  #ifdef AXIS2_STEP_DIR_PRESENT
   if (AXIS2_STEP_PIN >= 0 && AXIS2_STEP_PIN <= 255) pinMode(AXIS2_STEP_PIN, OUTPUT);
+  #endif
+  #ifdef AXIS3_STEP_DIR_PRESENT
   if (AXIS3_STEP_PIN >= 0 && AXIS3_STEP_PIN <= 255) pinMode(AXIS3_STEP_PIN, OUTPUT);
+  #endif
+  #ifdef AXIS4_STEP_DIR_PRESENT
   if (AXIS4_STEP_PIN >= 0 && AXIS4_STEP_PIN <= 255) pinMode(AXIS4_STEP_PIN, OUTPUT);
+  #endif
+  #ifdef AXIS5_STEP_DIR_PRESENT
   if (AXIS5_STEP_PIN >= 0 && AXIS5_STEP_PIN <= 255) pinMode(AXIS5_STEP_PIN, OUTPUT);
+  #endif
+  #ifdef AXIS6_STEP_DIR_PRESENT
   if (AXIS6_STEP_PIN >= 0 && AXIS6_STEP_PIN <= 255) pinMode(AXIS6_STEP_PIN, OUTPUT);
+  #endif
+  #ifdef AXIS7_STEP_DIR_PRESENT
   if (AXIS7_STEP_PIN >= 0 && AXIS7_STEP_PIN <= 255) pinMode(AXIS7_STEP_PIN, OUTPUT);
+  #endif
+  #ifdef AXIS8_STEP_DIR_PRESENT
   if (AXIS8_STEP_PIN >= 0 && AXIS8_STEP_PIN <= 255) pinMode(AXIS8_STEP_PIN, OUTPUT);
+  #endif
+  #ifdef AXIS9_STEP_DIR_PRESENT
   if (AXIS9_STEP_PIN >= 0 && AXIS9_STEP_PIN <= 255) pinMode(AXIS9_STEP_PIN, OUTPUT);
+  #endif
 
   if (AXIS1_ENABLE_PIN >= 0 && AXIS1_ENABLE_PIN <= 255) { pinMode(AXIS1_ENABLE_PIN, OUTPUT); digitalWrite(AXIS1_ENABLE_PIN, !AXIS1_ENABLE_STATE); }
   if (AXIS2_ENABLE_PIN >= 0 && AXIS2_ENABLE_PIN <= 255) { pinMode(AXIS2_ENABLE_PIN, OUTPUT); digitalWrite(AXIS2_ENABLE_PIN, !AXIS2_ENABLE_STATE); }
@@ -95,18 +113,15 @@ void Telescope::init(const char *fwName, int fwMajor, int fwMinor, const char *f
   strcpy(firmware.time, __TIME__);
 
   if (!nv.isKeyValid(INIT_NV_KEY)) {
-    VF("MSG: NV, invalid key wipe "); V(nv.size); VLF(" bytes");
-    if (nv.verify()) { VLF("MSG: NV, ready for reset to defaults"); }
+    if (!nv.initError) {
+      VF("MSG: NV, invalid key wipe "); V(nv.size); VLF(" bytes");
+      if (nv.verify()) { VLF("MSG: NV, ready for reset to defaults"); }
+    } else {
+      DLF("WRN: NV, can't be accessed skipping verification!");
+    }
   } else { VLF("MSG: NV, correct key found"); }
 
   if (!gpio.init()) initError.gpio = true;
-
-  #if SERIAL_B_ESP_FLASHING == ON
-    addonFlasher.init();
-  #endif
-
-  weather.init();
-  temperature.init();
 
   #ifdef SHARED_ENABLE_PIN
     pinModeEx(SHARED_ENABLE_PIN, OUTPUT);
@@ -119,6 +134,17 @@ void Telescope::init(const char *fwName, int fwMajor, int fwMinor, const char *f
   #ifdef SHARED_ENABLE_PIN3
     pinModeEx(SHARED_ENABLE_PIN3, OUTPUT);
     digitalWriteEx(SHARED_ENABLE_PIN3, !SHARED3_ENABLE_STATE);
+  #endif
+  
+  #if SERIAL_B_ESP_FLASHING == ON
+    addonFlasher.init();
+  #endif
+
+  weather.init();
+  temperature.init();
+
+  #if OPERATIONAL_MODE == WIFI && WEB_SERVER == ON
+    wifiManager.init();
   #endif
 
   #ifdef MOUNT_PRESENT
@@ -165,10 +191,6 @@ void Telescope::init(const char *fwName, int fwMajor, int fwMinor, const char *f
     VLF("MSG: Telescope, writing defaults to NV");
     nv.write(NV_TELESCOPE_SETTINGS_BASE, reticleBrightness);
   }
-
-  #if OPERATIONAL_MODE == WIFI && WEB_SERVER == ON
-    wifiManager.init();
-  #endif
 
   // init is done, write the NV key if necessary
   if (!nv.hasValidKey()) {

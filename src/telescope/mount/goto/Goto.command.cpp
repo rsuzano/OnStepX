@@ -90,8 +90,13 @@ bool Goto::command(char *reply, char *command, char *parameter, bool *supressFra
     CommandError e;
     if (alignActive()) {
       e = alignAddStar();
-      if (e != CE_NONE) { alignState.lastStar = 0; alignState.currentStar = 0; *commandError = e; }
-    } else {
+      if (e != CE_NONE) {
+          alignState.lastStar = 0;
+          alignState.currentStar = 0;
+          *commandError = e;
+          DLF("ERR: Mount, failed to add align point");
+        } else { VLF("MSG: Mount, align point added"); }
+      } else {
       PierSideSelect pps = settings.preferredPierSide;
       if (!mount.isHome() && PIER_SIDE_SYNC_CHANGE_SIDES == OFF) pps = PSS_SAME_ONLY;
       e = requestSync(gotoTarget, pps);
@@ -166,19 +171,19 @@ bool Goto::command(char *reply, char *command, char *parameter, bool *supressFra
           static int star = 0;
           *numericReply = false;
           switch (parameter[1]) {
-            case '0': sprintf(reply,"%ld",(long)(radToArcsec(transform.align.model.ax1Cor))); break; // ax1Cor
-            case '1': sprintf(reply,"%ld",(long)(radToArcsec(transform.align.model.ax2Cor))); break; // ax2Cor
-            case '2': sprintf(reply,"%ld",(long)(radToArcsec(transform.align.model.altCor))); break; // altCor
-            case '3': sprintf(reply,"%ld",(long)(radToArcsec(transform.align.model.azmCor))); break; // azmCor
-            case '4': sprintf(reply,"%ld",(long)(radToArcsec(transform.align.model.doCor)));  break; // doCor
-            case '5': sprintf(reply,"%ld",(long)(radToArcsec(transform.align.model.pdCor)));  break; // pdCor
-            case '6': if (transform.mountType == FORK || transform.mountType == ALTAZM)              // ffCor
-              sprintf(reply,"%ld",(long)(radToArcsec(transform.align.model.dfCor))); else sprintf(reply,"%ld",(long)(0));
+            case '0': sprintf(reply,"%ld",(long)round((radToArcsec(transform.align.model.ax1Cor)))); break; // ax1Cor
+            case '1': sprintf(reply,"%ld",(long)round((radToArcsec(transform.align.model.ax2Cor)))); break; // ax2Cor
+            case '2': sprintf(reply,"%ld",(long)round((radToArcsec(transform.align.model.altCor)))); break; // altCor
+            case '3': sprintf(reply,"%ld",(long)round((radToArcsec(transform.align.model.azmCor)))); break; // azmCor
+            case '4': sprintf(reply,"%ld",(long)round((radToArcsec(transform.align.model.doCor))));  break; // doCor
+            case '5': sprintf(reply,"%ld",(long)round((radToArcsec(transform.align.model.pdCor))));  break; // pdCor
+            case '6': if (transform.mountType == FORK || transform.mountType == ALTAZM)                     // ffCor
+              sprintf(reply,"%ld",(long)(round(radToArcsec(transform.align.model.dfCor)))); else sprintf(reply,"%ld",(long)(0));
             break;
-            case '7': if (transform.mountType != FORK && transform.mountType != ALTAZM)              // dfCor
-              sprintf(reply,"%ld",(long)(radToArcsec(transform.align.model.dfCor))); else sprintf(reply,"%ld",(long)(0));
+            case '7': if (transform.mountType != FORK && transform.mountType != ALTAZM)                     // dfCor
+              sprintf(reply,"%ld",(long)(round(radToArcsec(transform.align.model.dfCor)))); else sprintf(reply,"%ld",(long)(0));
             break;
-            case '8': sprintf(reply,"%ld",(long)(radToArcsec(transform.align.model.tfCor))); break;  // tfCor
+            case '8': sprintf(reply,"%ld",(long)(round(radToArcsec(transform.align.model.tfCor)))); break;  // tfCor
             // number of stars, reset to first star
             case '9': { int n = 0; if (alignState.currentStar > alignState.lastStar) n = alignState.lastStar; sprintf(reply,"%ld",(long)(n)); star = 0; } break;
             case 'A': { convert.doubleToHms(reply,radToHrs(transform.align.actual[star].h),true,PM_HIGH); } break;
@@ -196,10 +201,9 @@ bool Goto::command(char *reply, char *command, char *parameter, bool *supressFra
       //            Returns: Value
       if (parameter[0] == '9')  {
         Coordinate current;
-        *numericReply = false;
         switch (parameter[1]) {
-          case '2': sprintF(reply, "%0.3f", settings.usPerStepCurrent); break;     // current
-          case '3': sprintF(reply, "%0.3f", usPerStepBase); break;                 // default base
+          case '2': sprintF(reply, "%0.3f", settings.usPerStepCurrent); break;              // current
+          case '3': sprintF(reply, "%0.3f", usPerStepBase); break;                          // default base
           // pierSide 0 = None, 1 = East, 2 = West (with suffix 'N' if meridian flips are disabled)
           case '4':
               current = mount.getMountPosition();
@@ -208,15 +212,10 @@ bool Goto::command(char *reply, char *command, char *parameter, bool *supressFra
           case '5': sprintf(reply, "%d", (int)settings.meridianFlipAuto); break;            // autoMeridianFlip
           case '6': reply[0] = "EWB"[settings.preferredPierSide - 1]; reply[1] = 0; break;  // preferred pier side
           case '7': sprintF(reply, "%0.1f", (1000000.0F/settings.usPerStepCurrent)/degToRadF(axis1.getStepsPerMeasure())); break;
-          // rotator availablity 2 = rotate/derotate, 1 = rotate, 0 = off
-          case '8':
-            if (AXIS3_DRIVER_MODEL != OFF) {
-              if (transform.mountType == ALTAZM) strcpy(reply, "D"); else strcpy(reply, "R");
-            } else strcpy(reply, "N");
-          break;
-          case '9': sprintF(reply, "%0.3f",usPerStepLowerLimit()); break;          // fastest step rate in us
+          case '9': sprintF(reply, "%0.3f",usPerStepLowerLimit()); break;                   // fastest step rate in us
           default: return false;
         }
+       *numericReply = false;
       } else return false;
     } else return false;
   } else

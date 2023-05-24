@@ -60,7 +60,10 @@ class Mount {
     inline bool isFault() { return axis1.fault() || axis2.fault(); }
 
     // returns true if the mount is at the home (startup) position
-    inline bool isHome() { return axis1.getInstrumentCoordinate() == home.position.a1 && axis2.getInstrumentCoordinate() == home.position.a2; }
+    inline bool isHome() {
+      return abs(axis1.getInstrumentCoordinate() - home.position.a1) <= arcsecToRad(AXIS1_HOME_TOLERANCE + 0.001F) &&
+             abs(axis2.getInstrumentCoordinate() - home.position.a2) <= arcsecToRad(AXIS2_HOME_TOLERANCE + 0.001F);
+    }
 
     // returns true if the mount is slewing (doing a goto or guide > 2X)
     inline bool isSlewing() { return axis1.isSlewing() || axis2.isSlewing(); }
@@ -78,11 +81,8 @@ class Mount {
     // returns true if the mount motors are powered on
     inline bool isEnabled() { return axis1.isEnabled() || axis2.isEnabled(); }
 
-    // allow syncing to the encoders instead of from them
-    void syncToEncoders(bool state);
-
-    // returns true if syncing only from OnStep to the Encoders
-    inline bool isSyncToEncoders() { return syncToEncodersEnabled; }
+    // true if syncing only from OnStep to the Encoders
+    bool syncFromOnStepToEncoders = false;
 
     // updates the tracking rates, etc. as appropriate for the mount state
     // called once a second by poll() but available here for immediate action
@@ -90,9 +90,11 @@ class Mount {
 
     void poll();
 
-    float trackingRate = 1.0F;
-    float trackingRateAxis1 = 0.0F;
-    float trackingRateAxis2 = 0.0F;
+    float trackingRate = 1.0F;            // in sidereal units 1x = 15 arc-seconds/sidereal second
+    float trackingRateAxis1 = 0.0F;       // in sidereal units 1x = 15 arc-seconds/sidereal second
+    float trackingRateAxis2 = 0.0F;       // in sidereal units 1x = 15 arc-seconds/sidereal second
+    float trackingRateOffsetRA = 0.0F;    // in sidereal units 1x = 15 arc-seconds/sidereal second
+    float trackingRateOffsetDec = 0.0F;   // in sidereal units 1x = 15 arc-seconds/sidereal second
 
     MountSettings settings = {RC_DEFAULT, { 0, 0 }};
 
@@ -113,8 +115,6 @@ class Mount {
     Coordinate current;
 
     TrackingState trackingState = TS_NONE;
-
-    bool syncToEncodersEnabled = false;
 };
 
 #ifdef AXIS1_STEP_DIR_PRESENT
