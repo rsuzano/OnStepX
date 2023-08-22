@@ -18,7 +18,7 @@
 // DEBUG ---------------------------------------------------------------------------------------------------------------------------
 // Enable additional debugging and/or status messages on the specified SERIAL_DEBUG port
 // Note that the SERIAL_DEBUG port cannot be used for normal communication with OnStep
-#define DEBUG                     VERBOSE//    OFF, Use ON for background error messages only, use VERBOSE for all           Infreq
+#define DEBUG                     OFF//    OFF, Use ON for background error messages only, use VERBOSE for all           Infreq
                                           //         error and status messages, use CONSOLE for VT100 debug console,
                                           //         or use PROFILER for VT100 task profiler.
 #define DEBUG_SERVO                   OFF //    OFF, n. Where n=1 to 9 as the designated axis for logging servo activity.     Option
@@ -35,9 +35,9 @@
 
 // ESP32 VIRTUAL SERIAL BLUETOOTH AND IP COMMAND CHANNELS --------------------------------------------------------------------------
 #define SERIAL_BT_MODE                SLAVE //    OFF, Use SLAVE to enable the interface (ESP32 only.)                          Option
-#define SERIAL_BT_NAME          "OnStepX" //         "OnStepX", Bluetooth device name.                                        Adjust
-#define SERIAL_IP_MODE               WIFI_STATION //    OFF, WIFI_ACCESS_POINT or WIFI_STATION enables interface (ESP32 only.)        Option
-#define WEB_SERVER                    ON //    OFF, ON enables Webserver (for Website plugin)                                Option
+#define SERIAL_BT_NAME          "OnStepXRegis" //         "OnStepX", Bluetooth device name.                                        Adjust
+#define SERIAL_IP_MODE               OFF //    OFF, WIFI_ACCESS_POINT or WIFI_STATION enables interface (ESP32 only.)        Option
+#define WEB_SERVER                    OFF //    OFF, ON enables Webserver (for Website plugin)                                Option
 
 // EXTERNAL GPIO SUPPORT -----------------------------------------------------------------------------------------------------------
 #define GPIO_DEVICE                   OFF //    OFF, DS2413: for 2-ch or 4-ch using 1-wire gpio's (one or two devices.)       Option

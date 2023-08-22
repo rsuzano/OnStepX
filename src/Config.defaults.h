@@ -105,7 +105,7 @@
 #define STA_SSID                      "lar_doce_lar"                      // Station SSID to connnect to
 #endif
 #ifndef STA_PASSWORD
-#define STA_PASSWORD                  "Blessed@1"                  // Wifi Station mode password
+#define STA_PASSWORD                  "Blessed@170"                  // Wifi Station mode password
 #endif
 #ifndef STA_DHCP_ENABLED
 #define STA_DHCP_ENABLED              true                       // Wifi Station/Ethernet DHCP enabled

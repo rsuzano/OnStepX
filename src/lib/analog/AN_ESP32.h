@@ -6,9 +6,9 @@
 #include "../../Common.h"
 
 #if defined(ESP32)
-  #if !defined(ESP_ARDUINO_VERSION) || ESP_ARDUINO_VERSION < 131072 + 3 // version 2.0.3
+ // #if !defined(ESP_ARDUINO_VERSION) || ESP_ARDUINO_VERSION < 131072 + 3 // version 2.0.3
     // starts tone on the specified pin of frequency (Hz) for the duration (in ms)
-    extern void tone(uint8_t pin, unsigned int frequency, unsigned long duration = 0);
+    extern void tone(uint8_t pin, unsigned int frequency, unsigned long duration);
     // stops tone on the specified pin
     extern void noTone(uint8_t pin);
 
@@ -18,5 +18,5 @@
     extern void analogWriteResolution(int value);
     // analog pwm frequency (500 to 10000Hz)
     extern void analogWriteFrequency(int value);
-  #endif
+ // #endif
 #endif
