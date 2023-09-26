@@ -39,18 +39,19 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
-      - name: release
-        uses: actions/create-release@v1
-        id: create_release
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.1
         with:
-          draft: false
-          prerelease: false
-          release_name: ${{ steps.version.outputs.version }}
-          tag_name: ${{ github.ref }}
-          body_path: CHANGELOG.md
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-      - name: upload linux artifact
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create a GitHub release
+        id: create_release
+        uses: ncipollo/release-action@v1.13.0
+        with:
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
+      - name: Upload Linux Artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
