@@ -139,18 +139,48 @@ bool Status::command(char *reply, char *command, char *parameter, bool *supressF
       reply[8] = limits.errorCode()|0b10000000;                                    // General error
       reply[9] = 0;
       *numericReply = false;
+    } else
+
+    // :GW#       Get tracking and basic mount state
+    //            Returns: s#
+    if (command[1] == 'W' && parameter[0] == 0)  {
+      int i = 0;
+      if (transform.mountType == GEM)          reply[i++] = 'G'; else
+      if (transform.mountType == FORK)         reply[i++] = 'P'; else
+      if (transform.mountType == ALTAZM)       reply[i++] = 'A';
+      if (mount.isTracking())                  reply[i++] = 'N'; else reply[i++] = 'T';
+      if (park.state == PS_PARKED)             reply[i++] = 'P'; else
+      if (mount.isHome())                      reply[i++] = 'H'; else
+      if (goTo.alignDone())                    reply[i++] = '1'; else reply[i++] = '0';
+      reply[i++] = 0;
+      *numericReply = false;
     } else return false;
+
   } else
 
   // :SX97,[n]#     Set buzzer state
   //                Return: see below
   if (command[0] == 'S' && command[1] == 'X' && parameter[0] == '9' && parameter[1] == '7'  && parameter[2] == ','  && parameter[4] == 0) {
-    if (parameter[3] == '0' || parameter[3] == '1') {
-      sound.enabled = parameter[3] - '0';
-      #if STATUS_BUZZER_MEMORY == ON
-        nv.write(NV_MOUNT_STATUS_BASE, (uint8_t)sound.enabled);
-      #endif
-    } else *commandError = CE_PARAM_RANGE;
+    switch (parameter[3]) {
+      case '0': case '1':
+        sound.enabled = parameter[3] - '0';
+        #if STATUS_BUZZER_MEMORY == ON
+          nv.write(NV_MOUNT_STATUS_BASE, (uint8_t)sound.enabled);
+        #endif
+      break;
+      case '2':
+        sound.beep();
+      break;
+      case '3':
+        sound.alert();
+      break;
+      case '4':
+        sound.click();
+      break;
+      default:
+        *commandError = CE_PARAM_RANGE;
+      break;
+    }
   } else return false;
 
   return true;

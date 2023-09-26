@@ -258,7 +258,9 @@
 #endif
 #if AXIS1_DRIVER_MODEL >= SERVO_DRIVER_FIRST && AXIS1_DRIVER_MODEL <= SERVO_DRIVER_LAST
   #define AXIS1_SERVO_PRESENT
-  #if AXIS1_DRIVER_MODEL == SERVO_TMC2209
+  #if AXIS1_DRIVER_MODEL == SERVO_TMC5160
+    #define AXIS1_SERVO_TMC5160
+  #elif AXIS1_DRIVER_MODEL == SERVO_TMC2209
     #define AXIS1_SERVO_TMC2209
   #else
     #define AXIS1_SERVO_DC
@@ -272,6 +274,9 @@
 
   #ifndef AXIS1_SERVO_MAX_VELOCITY
   #define AXIS1_SERVO_MAX_VELOCITY      100                       // max velocity, in % for DC, in steps/s for SERVO_TMC2209
+  #endif
+  #ifndef AXIS1_SERVO_VELOCITY_FACTOR
+  #define AXIS1_SERVO_VELOCITY_FACTOR   frequency*0               // converts frequency (counts per second) to velocity (in steps per second or DC motor PWM ADU range)
   #endif
   #ifndef AXIS1_SERVO_ACCELERATION
   #define AXIS1_SERVO_ACCELERATION      20                        // acceleration, in %/s for DC, in steps/s/s for SERVO_TMC2209
@@ -418,7 +423,9 @@
 #endif
 #if AXIS2_DRIVER_MODEL >= SERVO_DRIVER_FIRST && AXIS2_DRIVER_MODEL <= SERVO_DRIVER_LAST
   #define AXIS2_SERVO_PRESENT
-  #if AXIS2_DRIVER_MODEL == SERVO_TMC2209
+  #if AXIS2_DRIVER_MODEL == SERVO_TMC5160
+    #define AXIS2_SERVO_TMC5160
+  #elif AXIS2_DRIVER_MODEL == SERVO_TMC2209
     #define AXIS2_SERVO_TMC2209
   #else
     #define AXIS2_SERVO_DC
@@ -432,6 +439,9 @@
 
   #ifndef AXIS2_SERVO_MAX_VELOCITY
   #define AXIS2_SERVO_MAX_VELOCITY      100
+  #endif
+  #ifndef AXIS2_SERVO_VELOCITY_FACTOR
+  #define AXIS2_SERVO_VELOCITY_FACTOR   frequency*0
   #endif
   #ifndef AXIS2_SERVO_ACCELERATION
   #define AXIS2_SERVO_ACCELERATION      20
@@ -533,10 +543,10 @@
 #define AXIS2_TARGET_TOLERANCE        0.0F                        // in arc-seconds
 #endif
 #ifndef AXIS1_HOME_TOLERANCE
-#define AXIS1_HOME_TOLERANCE          AXIS1_TARGET_TOLERANCE      // in arc-seconds
+#define AXIS1_HOME_TOLERANCE          AXIS1_TARGET_TOLERANCE + (1800.0/AXIS1_STEPS_PER_DEGREE) // in arc-seconds
 #endif
 #ifndef AXIS2_HOME_TOLERANCE
-#define AXIS2_HOME_TOLERANCE          AXIS2_TARGET_TOLERANCE      // in arc-seconds
+#define AXIS2_HOME_TOLERANCE          AXIS2_TARGET_TOLERANCE + (1800.0/AXIS2_STEPS_PER_DEGREE) // in arc-seconds
 #endif
 #ifndef AXIS1_WRAP
 #define AXIS1_WRAP                    OFF
@@ -1963,6 +1973,10 @@
     defined(AXIS4_SERVO_TMC2209) || defined(AXIS5_SERVO_TMC2209) || defined(AXIS6_SERVO_TMC2209) || \
     defined(AXIS7_SERVO_TMC2209) || defined(AXIS8_SERVO_TMC2209) || defined(AXIS9_SERVO_TMC2209)
   #define SERVO_TMC2209_PRESENT
+#endif
+
+#if defined(AXIS1_SERVO_TMC5160) || defined(AXIS2_SERVO_TMC5160)
+  #define SERVO_TMC5160_PRESENT
 #endif
 
 #if defined(AXIS1_ODRIVE_PRESENT) || defined(AXIS2_ODRIVE_PRESENT)

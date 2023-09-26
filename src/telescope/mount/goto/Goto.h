@@ -62,8 +62,8 @@ class Goto {
     // checks for valid target and determines pier side (Mount coordinate system)
     CommandError setTarget(Coordinate *coords, PierSideSelect pierSideSelect, bool isGoto = true);
 
-    // stop any presently active goto
-    void stop();
+    // abort any presently active goto
+    void abort();
 
     // general status checks ahead of sync or goto
     CommandError validate();
@@ -115,7 +115,7 @@ class Goto {
     // set any additional destinations required for a goto
     void waypoint(Coordinate *current);
 
-    // start slews with approach correction and parking support
+    // start slews with approach correction and parking/homing support
     CommandError startAutoSlew();
     #endif
 
@@ -125,6 +125,9 @@ class Goto {
     // estimate average microseconds per step lower limit
     float usPerStepLowerLimit();
 
+    // get least distance between coordinates
+    inline double dist(double a, double b) { if (a > b) return a - b; else return b - a; }
+
     // requested goto/sync destination Native coordinate (eq or hor)
     Coordinate gotoTarget = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, PIER_SIDE_NONE};
     // goto starts from this Mount coordinate (eq or hor)
@@ -133,6 +136,8 @@ class Goto {
     Coordinate destination;
     // goto final destination Mount coordinate (eq or hor)
     Coordinate target = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, PIER_SIDE_NONE};
+    // goto final destination Mount Azimuth coordinate correction for coordinate wrap 
+    double azimuthTargetCorrection = 0.0;
     // last align (goto) target Mount coordinate (eq or hor)
     Coordinate lastAlignTarget = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, PIER_SIDE_NONE};
     GotoState  stateAbort           = GS_NONE;

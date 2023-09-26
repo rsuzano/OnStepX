@@ -41,7 +41,7 @@ void Rotator::init() {
 }
 
 void Rotator::begin() {
-  axis3.calibrate();
+  axis3.calibrateDriver();
 
   // start monitor task
   VF("MSG: Rotator, start derotation task (rate 1s priority 6)... ");
@@ -135,12 +135,15 @@ CommandError Rotator::gotoTarget(float target) {
   if (settings.parkState >= PS_PARKED) return CE_PARKED;
 
   VF("MSG: Rotator, goto target coordinate set ("); V(target); VL(" deg)");
-  VLF("MSG: Rotator, starting goto");
+  VLF("MSG: Rotator, attempting goto");
 
   axis3.setFrequencyBase(0.0F);
   axis3.setTargetCoordinate(target);
 
-  return axis3.autoGoto(settings.gotoRate);
+  CommandError e = axis3.autoGoto(settings.gotoRate);
+  if (e != CE_NONE) { VLF("MSG: Rotator, goto failed"); }
+
+  return e;
 }
 
 // parks rotator at current position
@@ -259,6 +262,12 @@ void Rotator::monitor() {
         }
       #endif
 
+      if (homing) {
+        axis3.resetPosition((axis3.settings.limits.max + axis3.settings.limits.min)/2.0F);
+        axis3.setBacklashSteps(getBacklash());
+        homing = false;
+      }
+
       // delayed write of focuser position
       if (ROTATOR_WRITE_DELAY != 0) {
         if (secs > writeTime) {
@@ -268,6 +277,7 @@ void Rotator::monitor() {
         }
       }
     }
+
   }
 }
 
