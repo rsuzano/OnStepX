@@ -32,17 +32,24 @@ jobs:
         uses: actions/upload-artifact@v3.1.1
         with:
           path: .pio/build/esp32dev/firmware.bin
-#      - name: release
-#        uses: actions/create-release@v1
-#        id: create_release
-#        with:
-#          draft: false
-#          prerelease: false
-#          release_name: ${{ steps.version.outputs.version }}
-#          tag_name: ${{ github.ref }}
-#          body_path: CHANGELOG.md
-#        env:
-#          GITHUB_TOKEN: ${{ github.token }}
+  do-release:
+    if: ${{ github.ref_name == 'main' }}
+    needs: build
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          release_name: ${{ steps.version.outputs.version }}
+          tag_name: ${{ github.ref }}
+          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - name: upload linux artifact
         uses: actions/upload-release-asset@v1
         env:
