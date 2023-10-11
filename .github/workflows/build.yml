@@ -45,7 +45,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: PackConfigs
-        run: ls -la */**
+        run: ls -laR .
       - name: Create a GitHub release
         id: create_release
         uses: ncipollo/release-action@v1.13.0
