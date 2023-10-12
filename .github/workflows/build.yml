@@ -32,28 +32,28 @@ jobs:
         uses: actions/upload-artifact@v3.1.1
         with:
           path: .pio/build/esp32dev/firmware.bin
-  do-release:
-    if: ${{ github.ref_name == 'main' }}
-    needs: build
-    strategy:
-      fail-fast: false
-    runs-on: ubuntu-latest
-    steps:
-      - name: Bump version and push tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v6.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: PackConfigs
-        run: ls -laR .
-      - name: Create a GitHub release
-        id: create_release
-        uses: ncipollo/release-action@v1.13.0
-        with:
-          tag: ${{ steps.tag_version.outputs.new_tag }}
-          name: Release ${{ steps.tag_version.outputs.new_tag }}
-          body: ${{ steps.tag_version.outputs.changelog }}
-          artifacts: ".pio/build/esp32dev/firmware.bin"
+#  do-release:
+#    if: ${{ github.ref_name == 'main' }}
+#    needs: build
+#    strategy:
+#      fail-fast: false
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Bump version and push tag
+#        id: tag_version
+#        uses: mathieudutour/github-tag-action@v6.1
+#        with:
+#          github_token: ${{ secrets.GITHUB_TOKEN }}
+#      - name: PackConfigs
+#        run: ls -laR .
+#      - name: Create a GitHub release
+#        id: create_release
+#        uses: ncipollo/release-action@v1.13.0
+#        with:
+#          tag: ${{ steps.tag_version.outputs.new_tag }}
+#          name: Release ${{ steps.tag_version.outputs.new_tag }}
+#          body: ${{ steps.tag_version.outputs.changelog }}
+#          artifacts: ".pio/build/esp32dev/firmware.bin"
 #      - name: Upload Linux Artifact
 #        uses: actions/upload-release-asset@v1
 #        env:
