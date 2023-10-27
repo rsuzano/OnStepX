@@ -3,8 +3,8 @@
 #pragma once
 #include "Common.h"
 
-#if FileVersionConfig != 5
-  #error "Configuration (Config.h): FileVersionConfig (Config.h version) must be 5 for this OnStep."
+#if !defined(FileVersionConfig) || FileVersionConfig != 6 // per FirmwareVersionConfig
+  #error "Configuration (Config.h): FileVersionConfig (Config.h version) must be 6 for this OnStep."
 #endif
 
 // BACKWARDS COMPATABILITY ------------------------
@@ -301,6 +301,18 @@
 
 #if MOUNT_COORDS < MOUNT_COORDS_FIRST && MOUNT_COORDS > MOUNT_COORDS_LAST
   #error "Configuration (Config.h): Setting MOUNT_COORDS unknown, use a valid MOUNT COORDS (from Constants.h)"
+#endif
+
+#if MOUNT_COORDS_MEMORY != ON && MOUNT_COORDS_MEMORY != OFF
+  #error "Configuration (Config.h): Setting MOUNT_COORDS_MEMORY unknown, use ON or OFF"
+#endif
+
+#if MOUNT_COORDS_MEMORY == ON && NV_ENDURANCE < NVE_VHIGH
+  #error "Configuration (Config.h): Setting MOUNT_COORDS_MEMORY requires a NV storage device with very high write endurance (FRAM)"
+#endif
+
+#if MOUNT_ENABLE_IN_STANDBY != ON && MOUNT_ENABLE_IN_STANDBY != OFF
+  #error "Configuration (Config.h): Setting MOUNT_ENABLE_IN_STANDBY unknown, use ON or OFF"
 #endif
 
 #if ALIGN_MAX_STARS != AUTO && (ALIGN_MAX_STARS < 1 && ALIGN_MAX_STARS > 9)

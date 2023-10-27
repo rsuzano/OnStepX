@@ -43,9 +43,9 @@
 // Firmware version ----------------------------------------------------------------------------------------------------------------
 #define FirmwareName                "On-Step"
 #define FirmwareVersionMajor        10
-#define FirmwareVersionMinor        17     // minor version 00 to 99
-#define FirmwareVersionPatch        "j"    // for example major.minor patch: 10.03c
-#define FirmwareVersionConfig       5      // internal, for tracking configuration file changes
+#define FirmwareVersionMinor        19     // minor version 00 to 99
+#define FirmwareVersionPatch        "b"    // for example major.minor patch: 10.03c
+#define FirmwareVersionConfig       6      // internal, for tracking configuration file changes
 
 #include "src/Common.h"
 NVS nv;
