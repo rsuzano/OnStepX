@@ -19,7 +19,7 @@
 #endif
 
 // Lower limit (fastest) step rate in uS for this platform (in SQW mode) and width of step pulse
-#if !defined(ESP_ARDUINO_VERSION) || ESP_ARDUINO_VERSION <= 131072 + 0 // version 2.0.0
+#if !defined(ESP_ARDUINO_VERSION) || ESP_ARDUINO_VERSION >= 131072 + 0 // version 2.0.0
   #define HAL_MAXRATE_LOWER_LIMIT 16
 #else
   #define HAL_MAXRATE_LOWER_LIMIT 40
