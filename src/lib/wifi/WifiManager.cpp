@@ -117,6 +117,8 @@ bool WifiManager::init() {
         VLF("MSG: WiFi, AP initialized station failed");
       }
     } else {
+      VF("MSG: WiFi, Sta DHCP IP  = "); VL(WiFi.localIP());
+      VF("MSG: WiFi, Sta RSSI  = "); VL(WiFi.RSSI());
       active = true;
       VLF("MSG: WiFi, initialized");
 
