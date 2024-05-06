@@ -14,11 +14,17 @@
 
 // automatic setup of serial passthrough
 #if SERIAL_B_ESP_FLASHING == ON
-  #define SERIAL_PASSTHROUGH SERIAL_B
-  #define SERIAL_PASSTHROUGH_BAUD_DEFAULT SERIAL_B_BAUD_DEFAULT
-  #define SERIAL_PASSTHROUGH_RX SERIAL_B_RX
-  #define SERIAL_PASSTHROUGH_TX SERIAL_B_TX
-  #define SERIAL_PASSTHROUGH_RXTX_SET SERIAL_B_RXTX_SET
+#define SERIAL_PASSTHROUGH SERIAL_B
+#define SERIAL_PASSTHROUGH_BAUD_DEFAULT SERIAL_B_BAUD_DEFAULT
+#ifdef SERIAL_B_RX
+#define SERIAL_PASSTHROUGH_RX SERIAL_B_RX
+#endif
+#ifdef SERIAL_B_TX
+#define SERIAL_PASSTHROUGH_TX SERIAL_B_TX
+#endif
+#ifdef SERIAL_B_RXTX_SET
+#define SERIAL_PASSTHROUGH_RXTX_SET SERIAL_B_RXTX_SET
+#endif
 #endif
 
 // default settings for any TMC UART drivers that may be present
@@ -116,6 +122,10 @@
 
 #ifndef ADDON_TRIGR_PIN
 #define ADDON_TRIGR_PIN             OFF
+#endif
+
+#ifndef ADDON_SELECT_PIN
+#define ADDON_SELECT_PIN            OFF
 #endif
 
 #ifndef ADDON_GPIO0_PIN

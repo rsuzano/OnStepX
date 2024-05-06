@@ -59,6 +59,7 @@ int SenseInput::isOn() {
     long stableMs = (long)(millis() - stableStartMs);
     if (stableMs >= hysteresis) value = stableSample;
   }
+  if (reverseState) { if (value == LOW) value = HIGH; else value = LOW; }
   lastValue = value;
   return value == activeState;
 }
@@ -75,6 +76,7 @@ int SenseInput::changed() {
     long stableMs = (long)(millis() - stableStartMs);
     if (stableMs >= hysteresis) value = stableSample;
   }
+  if (reverseState) { if (value == LOW) value = HIGH; else value = LOW; }
   bool result = lastChangedValue != value;
   lastChangedValue = value;
   return result;
@@ -87,6 +89,7 @@ void SenseInput::poll() {
     if (stableSample != sample) { stableStartMs = millis(); stableSample = sample; }
     long stableMs = (long)(millis() - stableStartMs);
     if (stableMs > hysteresis) value = stableSample;
+    if (reverseState) { if (value == LOW) value = HIGH; else value = LOW; }
   }
   lastValue = value;
 }
@@ -120,6 +123,11 @@ int Sense::isOn(uint8_t handle) {
 int Sense::changed(uint8_t handle) {
   if (handle == 0) return false;
   return senseInput[handle - 1]->changed();
+}
+
+void Sense::reverse(uint8_t handle, bool state) {
+  if (handle == 0) return;
+  senseInput[handle - 1]->reverse(state);
 }
 
 void Sense::poll() {

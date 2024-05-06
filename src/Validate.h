@@ -33,14 +33,14 @@
 
 #if SERIAL_A_BAUD_DEFAULT != 9600 && SERIAL_A_BAUD_DEFAULT != 19200 && SERIAL_A_BAUD_DEFAULT != 38400 && \
     SERIAL_A_BAUD_DEFAULT != 57600 && SERIAL_A_BAUD_DEFAULT != 115200 && SERIAL_A_BAUD_DEFAULT != 230400 && \
-    SERIAL_A_BAUD_DEFAULT != 460800 && SERIAL_A_BAUD_DEFAULT != OFF
-  #warning "Configuration (Config.h): Setting SERIAL_A_BAUD_DEFAULT unknown, use 9600, 19200, 38400, 57600, 115200, 230400, of 460800 (baud.)"
+    SERIAL_A_BAUD_DEFAULT != 460800 && SERIAL_A_BAUD_DEFAULT != 921600 && SERIAL_A_BAUD_DEFAULT != OFF
+  #warning "Configuration (Config.h): Setting SERIAL_A_BAUD_DEFAULT unknown, use 9600, 19200, 38400, 57600, 115200, 230400, 460800, or 921600 (baud.)"
 #endif
 
 #if SERIAL_B_BAUD_DEFAULT != 9600 && SERIAL_B_BAUD_DEFAULT != 19200 && SERIAL_B_BAUD_DEFAULT != 38400 && \
     SERIAL_B_BAUD_DEFAULT != 57600 && SERIAL_B_BAUD_DEFAULT != 115200 && SERIAL_B_BAUD_DEFAULT != 230400 && \
-    SERIAL_B_BAUD_DEFAULT != 460800 && SERIAL_B_BAUD_DEFAULT != OFF
-  #warning "Configuration (Config.h): Setting SERIAL_B_BAUD_DEFAULT unknown, use OFF, 9600, 19200, 38400, 57600, 115200, 230400, of 460800 (baud.)"
+    SERIAL_B_BAUD_DEFAULT != 460800 && SERIAL_B_BAUD_DEFAULT != 921600 && SERIAL_B_BAUD_DEFAULT != OFF
+  #warning "Configuration (Config.h): Setting SERIAL_B_BAUD_DEFAULT unknown, use OFF, 9600, 19200, 38400, 57600, 115200, 230400, 460800, or 921600 (baud.)"
 #endif
 
 #if SERIAL_B_ESP_FLASHING != ON && SERIAL_B_ESP_FLASHING != OFF
@@ -57,20 +57,20 @@
 
 #if SERIAL_C_BAUD_DEFAULT != 9600 && SERIAL_C_BAUD_DEFAULT != 19200 && SERIAL_C_BAUD_DEFAULT != 38400 && \
     SERIAL_C_BAUD_DEFAULT != 57600 && SERIAL_C_BAUD_DEFAULT != 115200 && SERIAL_C_BAUD_DEFAULT != 230400 && \
-    SERIAL_C_BAUD_DEFAULT != 460800 && SERIAL_C_BAUD_DEFAULT != OFF
-  #warning "Configuration (Config.h): Setting SERIAL_C_BAUD_DEFAULT unknown, use OFF, 9600, 19200, 38400, 57600, 115200, 230400, of 460800 (baud.)"
+    SERIAL_C_BAUD_DEFAULT != 460800 && SERIAL_C_BAUD_DEFAULT != 921600 && SERIAL_C_BAUD_DEFAULT != OFF
+  #warning "Configuration (Config.h): Setting SERIAL_C_BAUD_DEFAULT unknown, use OFF, 9600, 19200, 38400, 57600, 115200, 230400, 460800, or 921600 (baud.)"
 #endif
 
 #if SERIAL_D_BAUD_DEFAULT != 9600 && SERIAL_D_BAUD_DEFAULT != 19200 && SERIAL_D_BAUD_DEFAULT != 38400 && \
     SERIAL_D_BAUD_DEFAULT != 57600 && SERIAL_D_BAUD_DEFAULT != 115200 && SERIAL_D_BAUD_DEFAULT != 230400 && \
-    SERIAL_D_BAUD_DEFAULT != 460800 && SERIAL_D_BAUD_DEFAULT != OFF
-  #warning "Configuration (Config.h): Setting SERIAL_D_BAUD_DEFAULT unknown, use OFF, 9600, 19200, 38400, 57600, 115200, 230400, of 460800 (baud.)"
+    SERIAL_D_BAUD_DEFAULT != 460800 && SERIAL_D_BAUD_DEFAULT != 921600 && SERIAL_D_BAUD_DEFAULT != OFF
+  #warning "Configuration (Config.h): Setting SERIAL_D_BAUD_DEFAULT unknown, use OFF, 9600, 19200, 38400, 57600, 115200, 230400, 460800, or 921600 (baud.)"
 #endif
 
 #if SERIAL_E_BAUD_DEFAULT != 9600 && SERIAL_E_BAUD_DEFAULT != 19200 && SERIAL_E_BAUD_DEFAULT != 38400 && \
     SERIAL_E_BAUD_DEFAULT != 57600 && SERIAL_E_BAUD_DEFAULT != 115200 && SERIAL_E_BAUD_DEFAULT != 230400 && \
-    SERIAL_E_BAUD_DEFAULT != 460800 && SERIAL_E_BAUD_DEFAULT != OFF
-  #warning "Configuration (Config.h): Setting SERIAL_E_BAUD_DEFAULT unknown, use OFF, 9600, 19200, 38400, 57600, 115200, 230400, of 460800 (baud.)"
+    SERIAL_E_BAUD_DEFAULT != 460800 && SERIAL_E_BAUD_DEFAULT != 921600 && SERIAL_E_BAUD_DEFAULT != OFF
+  #warning "Configuration (Config.h): Setting SERIAL_E_BAUD_DEFAULT unknown, use OFF, 9600, 19200, 38400, 57600, 115200, 230400, 460800, or 921600 (baud.)"
 #endif
 
 #if STATUS_LED != OFF && STATUS_LED != ON
@@ -159,10 +159,6 @@
   #endif
 #endif
 
-#if AXIS1_SYNC_THRESHOLD != OFF && AXIS2_SYNC_THRESHOLD == OFF
-  #error "Configuration (Config.h): Setting AXIS2_SYNC_THRESHOLD must be set if AXIS1_SYNC_THRESHOLD is set"
-#endif
-
 #if AXIS1_REVERSE != ON && AXIS1_REVERSE != OFF
   #error "Configuration (Config.h): Setting AXIS1_REVERSE unknown, use OFF or ON."
 #endif
@@ -171,20 +167,34 @@
   #error "Configuration (Config.h): Setting AXIS1_POWER_DOWN unknown, use OFF or ON."
 #endif
 
-#if AXIS1_LIMIT_MIN < -360 || AXIS1_LIMIT_MIN > -90
-  #error "Configuration (Config.h): Setting AXIS1_LIMIT_MIN unknown, use value in the range -90 to -360."
+#if AXIS1_SECTOR_GEAR != ON && AXIS1_SECTOR_GEAR != OFF
+  #error "Configuration (Config.h): Setting AXIS1_SECTOR_GEAR unknown, use OFF or ON."
 #endif
 
-#if AXIS1_LIMIT_MAX < 90 || AXIS1_LIMIT_MAX > 360
-  #error "Configuration (Config.h): Setting AXIS1_LIMIT_MAX unknown, use value in the range 90 to 360."
+#if AXIS1_SECTOR_GEAR == ON
+  #if MOUNT_SUBTYPE == ALTAZM
+    #error "Configuration (Config.h): Setting MOUNT_TYPE ALTAZM is not compatible with AXIS1_SECTOR_GEAR ON  (from Constants.h)"
+  #endif
+  #if (AXIS1_SENSE_HOME) != OFF && (AXIS1_SENSE_HOME_OFFSET) != 0
+    #error "Configuration (Config.h): Enabling AXIS1_SECTOR_GEAR and AXIS1_SENSE_HOME requires an AXIS1_SENSE_HOME_OFFSET of 0."
+  #endif
+  #if (AXIS2_SENSE_HOME) != OFF && AXIS2_TANGENT_ARM == OFF
+    #error "Configuration (Config.h): Enabling AXIS1_SECTOR_GEAR requires AXIS2_SENSE_HOME to be OFF (except for tangent arm Dec mounts.)"
+  #endif
+#else
+  #if AXIS2_TANGENT_ARM == OFF && ((AXIS1_SENSE_HOME) == OFF && (AXIS2_SENSE_HOME) != OFF)
+    #error "Configuration (Config.h): Enabling AXIS2_SENSE_HOME requires enabling AXIS1_SENSE_HOME or AXIS2_TANGENT_ARM."
+  #endif
+  #if AXIS1_LIMIT_MIN < -360 || AXIS1_LIMIT_MIN > -90
+    #error "Configuration (Config.h): Setting AXIS1_LIMIT_MIN unknown, use value in the range -90 to -360."
+  #endif
+  #if AXIS1_LIMIT_MAX < 90 || AXIS1_LIMIT_MAX > 360
+    #error "Configuration (Config.h): Setting AXIS1_LIMIT_MAX unknown, use value in the range 90 to 360."
+  #endif
 #endif
 
 #if (AXIS1_SENSE_HOME) != OFF && (AXIS1_SENSE_HOME) < 0
   #error "Configuration (Config.h): Setting AXIS1_SENSE_HOME unknown, use OFF or HIGH/LOW and HYST() and/or THLD() as described in comments."
-#endif
-
-#if (AXIS1_SENSE_HOME) != OFF && (AXIS2_SENSE_HOME) == OFF
-  #error "Configuration (Config.h): Enabling AXIS1_SENSE_HOME requires enabling AXIS2_SENSE_HOME also."
 #endif
 
 #if (AXIS1_SENSE_LIMIT_MIN) != OFF && (AXIS1_SENSE_LIMIT_MIN) < 0
@@ -250,10 +260,6 @@
   #endif
 #endif
 
-#if AXIS2_SYNC_THRESHOLD != OFF && AXIS1_SYNC_THRESHOLD == OFF
-  #error "Configuration (Config.h): Setting AXIS1_SYNC_THRESHOLD must be set if AXIS2_SYNC_THRESHOLD is set"
-#endif
-
 #if AXIS2_REVERSE != ON && AXIS2_REVERSE != OFF
   #error "Configuration (Config.h): Setting AXIS2_REVERSE unknown, use OFF or ON."
 #endif
@@ -282,21 +288,36 @@
   #error "Configuration (Config.h): Setting AXIS2_SENSE_LIMIT_MAX unknown, use OFF or HIGH/LOW and HYST() and/or THLD() as described in comments."
 #endif
 
+#if MOUNT_SUBTYPE < GEM || MOUNT_SUBTYPE > ALTAZM
+  #error "Configuration (Config.h): Setting MOUNT_TYPE unknown, use a valid MOUNT TYPE (from Constants.h)"
+#endif
+
 #if AXIS2_TANGENT_ARM != ON && AXIS2_TANGENT_ARM != OFF
   #error "Configuration (Config.h): Setting AXIS2_TANGENT_ARM unknown, use OFF or ON."
+#endif
+
+#if AXIS2_TANGENT_ARM == ON
+  #if MOUNT_SUBTYPE == ALTAZM
+    #error "Configuration (Config.h): Setting MOUNT_TYPE ALTAZM is not compatible with AXIS2_TANGENT_ARM ON  (from Constants.h)"
+  #endif
+  #if (AXIS2_SENSE_HOME) != OFF && (AXIS2_SENSE_HOME_OFFSET) != 0
+    #error "Configuration (Config.h): Enabling AXIS2_TANGENT_ARM and AXIS2_SENSE_HOME requires an AXIS2_SENSE_HOME_OFFSET of 0."
+  #endif
+  #if (AXIS1_SENSE_HOME) != OFF && AXIS1_SECTOR_GEAR == OFF
+    #error "Configuration (Config.h): Enabling AXIS2_TANGENT_ARM requires AXIS1_SENSE_HOME to be OFF (except for sector gear RA mounts.)"
+  #endif
+#else
+  #if (AXIS2_SENSE_HOME) != OFF && (AXIS1_SENSE_HOME) == OFF
+    #error "Configuration (Config.h): Enabling AXIS2_SENSE_HOME requires enabling AXIS1_SENSE_HOME or AXIS2_TANGENT_ARM."
+  #endif
 #endif
 
 #if AXIS2_TANGENT_ARM_CORRECTION != ON && AXIS2_TANGENT_ARM_CORRECTION != OFF
   #error "Configuration (Config.h): Setting AXIS2_TANGENT_ARM_CORRECTION unknown, use OFF or ON."
 #endif
 
-#if AXIS2_TANGENT_ARM == OFF && (AXIS2_SENSE_HOME) != OFF && (AXIS1_SENSE_HOME) == OFF
-  #error "Configuration (Config.h): Enabling AXIS2_SENSE_HOME requires enabling AXIS1_SENSE_HOME or AXIS2_TANGENT_ARM."
-#endif
-
-// MOUNT TYPE
-#if MOUNT_SUBTYPE < GEM || MOUNT_SUBTYPE > ALTAZM
-  #error "Configuration (Config.h): Setting MOUNT_TYPE unknown, use a valid MOUNT TYPE (from Constants.h)"
+#if MOUNT_ALTERNATE_ORIENTATION != OFF && MOUNT_ALTERNATE_ORIENTATION != ON
+  #error "Configuration (Config.h): Setting MOUNT_ALTERNATE_ORIENTATION unknown, use ON or OFF"
 #endif
 
 #if MOUNT_COORDS < MOUNT_COORDS_FIRST && MOUNT_COORDS > MOUNT_COORDS_LAST
@@ -324,10 +345,10 @@
   #error "Configuration (Config.h): Setting TIME_LOCATION_SOURCE unknown, use OFF or valid TIME LOCATION SOURCE (from Constants.h)"
 #endif
 
-#if TIME_LOCATION_PPS_SENSE != OFF && \
-    TIME_LOCATION_PPS_SENSE != LOW && \
-    TIME_LOCATION_PPS_SENSE != HIGH && \
-    TIME_LOCATION_PPS_SENSE != BOTH
+#if (TIME_LOCATION_PPS_SENSE) != OFF && \
+    (TIME_LOCATION_PPS_SENSE) != LOW && \
+    (TIME_LOCATION_PPS_SENSE) != HIGH && \
+    (TIME_LOCATION_PPS_SENSE) != BOTH
   #error "Configuration (Config.h): Setting TIME_LOCATION_PPS_SENSE unknown, use OFF or LOW or HIGH or BOTH."
 #endif
 
@@ -597,11 +618,11 @@
   #error "Configuration (Config.h): Setting AXIS4_SENSE_HOME unknown, use OFF or HIGH/LOW and HYST() and/or THLD() as described in comments."
 #endif
 
-#if AXIS4_SENSE_LIMIT_MIN != OFF && AXIS4_SENSE_LIMIT_MIN < 0
+#if (AXIS4_SENSE_LIMIT_MIN) != OFF && (AXIS4_SENSE_LIMIT_MIN) < 0
   #error "Configuration (Config.h): Setting AXIS4_SENSE_LIMIT_MIN unknown, use OFF or HIGH/LOW and HYST() and/or THLD() as described in comments."
 #endif
 
-#if AXIS4_SENSE_LIMIT_MAX != OFF && AXIS4_SENSE_LIMIT_MAX < 0
+#if (AXIS4_SENSE_LIMIT_MAX) != OFF && (AXIS4_SENSE_LIMIT_MAX) < 0
   #error "Configuration (Config.h): Setting AXIS4_SENSE_LIMIT_MAX unknown, use OFF or HIGH/LOW and HYST() and/or THLD() as described in comments."
 #endif
 

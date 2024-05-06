@@ -4,13 +4,10 @@
 // This is for fast processors with hardware FP
 #define HAL_FAST_PROCESSOR
 
-// Base rate for critical task timing
-#define HAL_FRACTIONAL_SEC 100.0F
+// Base rate for critical task timing (0.0095s = 0.14", 0.2 sec/day)
+#define HAL_FRACTIONAL_SEC 105.2631579F
 
 // Analog read and write
-#ifndef ANALOG_READ_RANGE
-  #define ANALOG_READ_RANGE 4095
-#endif
 #ifndef ANALOG_WRITE_RANGE
   #define ANALOG_WRITE_RANGE 1023
 #endif
@@ -62,6 +59,9 @@
 #endif
 
 #if !defined(ESP_ARDUINO_VERSION) || ESP_ARDUINO_VERSION < 131072 + 3 // version 2.0.3
+  #ifndef ANALOG_READ_RANGE
+    #define ANALOG_READ_RANGE 4095
+  #endif
   #define HAL_INIT() { \
     analogWriteResolution(ANALOG_WRITE_PWM_BITS); \
     SERIAL_BT_BEGIN(); \
@@ -72,7 +72,11 @@
   }
 #else
   #ifdef ANALOG_WRITE_PWM_FREQUENCY
+    #ifndef ANALOG_READ_RANGE
+      #define ANALOG_READ_RANGE 1023
+    #endif
     #define HAL_INIT() { \
+      analogReadResolution(10); \
       analogWriteResolution(ANALOG_WRITE_PWM_BITS); \
       analogWriteFrequency(ANALOG_WRITE_PWM_FREQUENCY); \
       SERIAL_BT_BEGIN(); \
@@ -83,6 +87,7 @@
     }
   #else
     #define HAL_INIT() { \
+      analogReadResolution(10); \
       analogWriteResolution(ANALOG_WRITE_PWM_BITS); \
       SERIAL_BT_BEGIN(); \
       if (I2C_SDA_PIN != OFF && I2C_SCL_PIN != OFF) { \
@@ -96,7 +101,9 @@
 //--------------------------------------------------------------------------------------------------
 // Internal MCU temperature (in degrees C)
 // Correction for ESP32's internal temperture sensor
+#ifndef INTERNAL_TEMP_CORRECTION
 #define INTERNAL_TEMP_CORRECTION 0
+#endif
 #define HAL_TEMP() ( temperatureRead() + INTERNAL_TEMP_CORRECTION )
 
 //---------------------------------------------------------------------------------------------------

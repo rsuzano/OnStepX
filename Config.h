@@ -31,6 +31,7 @@
 #define SERIAL_C_BAUD_DEFAULT         OFF //    OFF, n. Baud rate as above. See (src/pinmaps/) for Serial port assignments.   Infreq
 #define SERIAL_D_BAUD_DEFAULT         OFF //    OFF, n. Baud rate as above. See (src/pinmaps/) for Serial port assignments.   Infreq
 #define SERIAL_E_BAUD_DEFAULT         OFF //    OFF, n. Baud rate as above. See (src/pinmaps/) for Serial port assignments.   Infreq
+#define SERIAL_RADIO                  OFF //    OFF, Use BLUETOOTH or WIFI_ACCESS_POINT or WIFI_STATION (ESP32 only.)         Option
 
 // STATUS --------------------------------------------- see https://onstep.groups.io/g/main/wiki/Configuration_Controller#STATUS_LED
 #define STATUS_LED                    ON //    OFF, Steady illumination if no error, blinks w/error code otherwise.          Option
@@ -49,6 +50,8 @@
 #define STEP_WAVE_FORM             PULSE // SQUARE, PULSE Step signal wave form faster rates. SQUARE best signal integrity.  Adjust
                                           //         Applies to all axes.
 
+// NON-VOLATILE MEMORY ---------------------------------------- see https://onstep.groups.io/g/main/wiki/Configuration_Controller#NV
+
 // =================================================================================================================================
 // MOUNT ===========================================================================================================================
 
@@ -60,7 +63,7 @@
 #define TMC_IRUN OFF
 #define TMC_IGOTO OFF
 
-// If runtime axis settings are enabled changes in the section below may be ignored unless you reset to defaults:
+// If runtime axis settings are enabled changes in the section below will be ignored (disable in SWS or by wiping NV/EEPROM):
 // \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ 
 #define AXIS1_STEPS_PER_DEGREE      11288.88889//45155.55556 //22593.14757 //  12800, n. Number of steps per degree:                                          <-Req'd
                                           //         n = (stepper_steps * micro_steps * overall_gear_reduction)/360.0
@@ -96,7 +99,7 @@
 // AXIS2 DEC/ALT ------------------------------------------------------- see https://onstep.groups.io/g/main/wiki/Configuration_Axes
 #define AXIS2_DRIVER_MODEL            TMC2209S //    OFF, Enter motor driver model (above) in both axes to activate the mount.    <-Often
 
-// If runtime axis settings are enabled changes in the section below may be ignored unless you reset to defaults:
+// If runtime axis settings are enabled changes in the section below will be ignored (disable in SWS or by wiping NV/EEPROM):
 // \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
 #define AXIS2_STEPS_PER_DEGREE       11244.44444 //44977.77778 //21182.17361 //  12800, n. Number of steps per degree:                                          <-Req'd
                                           //         n = (stepper_steps * micro_steps * overall_gear_reduction)/360.0
@@ -148,16 +151,12 @@
                                           //         Provides Date/Time, and if available, PPS & Lat/Long also.
 #define TIME_LOCATION_PPS_SENSE       OFF //    OFF, HIGH senses PPS (pulse per second,) signal rising edge, or use LOW for   Option
                                           //         falling edge, or use BOTH for rising and falling edges.
-                                          //         Better tracking accuracy especially for Mega2560's w/ceramic resonator.
-
-// NON-VOLATILE MEMORY --------------------------------------------- see https://onstep.groups.io/g/main/wiki/Configuration_Mount#NV
-#define NV_DRIVER              NV_DEFAULT // NV_DEF, Use platforms default non-volatile device to remember runtime settings.  Option
 
 // STATUS ------------------------------------------------------ see https://onstep.groups.io/g/main/wiki/Configuration_Mount#STATUS
 #define STATUS_MOUNT_LED              ON //    OFF, ON Flashes proportional to rate of movement or solid on for slews.       Option
 #define STATUS_BUZZER                 OFF //    OFF, ON, n. Where n=100..6000 (Hz freq.) for speaker. ON for piezo buzzer.    Option
-#define STATUS_BUZZER_DEFAULT         OFF //    OFF, ON default starts w/buzzer enabled.                                      Option
-#define STATUS_BUZZER_MEMORY          OFF //    OFF, ON to remember buzzer setting across power cycles.                       Option
+#define STATUS_BUZZER_DEFAULT         OFF //    OFF, ON starts w/buzzer sound enabled.                                        Option
+#define STATUS_BUZZER_MEMORY          OFF //    OFF, ON to remember buzzer sound setting across power cycles.                 Option
 
 // ST4 INTERFACE -------------------------------------------------- see https://onstep.groups.io/g/main/wiki/Configuration_Mount#ST4
 // *** It is up to you to verify the interface meets the electrical specifications of any connected device, use at your own risk ***
@@ -238,7 +237,7 @@
 #define AXIS3_SLEW_RATE_BASE_DESIRED  1.0 //    1.0, n. Desired slew rate in deg/sec. Adjustable at run-time from            <-Req'd
                                           //         1/2 to 2x this rate, and as performance considerations require.
 
-// If runtime axis settings are enabled changes in the section below may be ignored unless you reset to defaults:
+// If runtime axis settings are enabled changes in the section below will be ignored (disable in SWS or by wiping NV/EEPROM):
 // \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
 #define AXIS3_STEPS_PER_DEGREE       64.0 //   64.0, n. Number of steps per degree for rotator/de-rotator.                    Adjust
                                           //         Alt/Az de-rotation: n = (num_circumference_pixels * 2)/360, minimum
@@ -278,7 +277,7 @@
                                           //         1/2 to 2x this rate, and as performance considerations require.
 #define AXIS4_SLEW_RATE_MINIMUM        150 //     20, n. Where n=5..200 (um/s.) Minimum microns/second.                        Adjust
 
-// If runtime axis settings are enabled changes in the section below may be ignored unless you reset to defaults:
+// If runtime axis settings are enabled changes in the section below will be ignored (disable in SWS or by wiping NV/EEPROM):
 // \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
 #define AXIS4_STEPS_PER_MICRON        1 //    0.5, n. Steps per micrometer. Figure this out by testing or other means.      Adjust
 #define AXIS4_REVERSE                 OFF //    OFF, ON Reverses movement direction, or reverse wiring instead to correct.    Option
