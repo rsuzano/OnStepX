@@ -21,8 +21,10 @@
 // Lower limit (fastest) step rate in uS for this platform (in SQW mode) and width of step pulse
 #if !defined(ESP_ARDUINO_VERSION) || ESP_ARDUINO_VERSION >= 131072 + 0 // version 2.0.0
   #define HAL_MAXRATE_LOWER_LIMIT 16
+  #define SERIAL_BT_NAME "ONSTEPX1"
 #else
   #define HAL_MAXRATE_LOWER_LIMIT 40
+  #define SERIAL_BT_NAME "ONSTEPX4"
 #endif
 #define HAL_PULSE_WIDTH 200  // in ns, measured 1/18/22 (ESP32 v2.0.0)
 
