@@ -48,3 +48,5 @@
   #define VL1(x)
   #define VLF(x)
 #endif
+  #define M(x)     SERIAL_DEBUG.print(x)
+  #define ML(x)    SERIAL_DEBUG.println(x)

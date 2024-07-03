@@ -66,7 +66,7 @@
 
 // ESP32 virtual serial IP command channels
 #ifndef SERIAL_IP_MODE
-#define SERIAL_IP_MODE                BOTH                         // use settings shown below to enable the interface
+#define SERIAL_IP_MODE                OFF                         // use settings shown below to enable the interface
 #endif
 #ifndef SERIAL_SERVER
 #define SERIAL_SERVER                 BOTH                        // STANDARD (port 9999) or PERSISTENT (ports 9996 to 9998)
