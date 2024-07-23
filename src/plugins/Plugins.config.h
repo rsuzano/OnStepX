@@ -12,14 +12,13 @@
 
 // =================================================================================================================================
 
-// #define PLUGIN1                       OFF //    OFF, Specify the class instance (same as plugin directory name) to enable.    Option
-//#include "plugin1/Name.h"               //         Specify the header file to include the class.
+#define PLUGIN1                   website //    OFF, Specify the class instance (same as plugin directory name) to enable.    Option
+#include "website/Website.h"              //         Specify the header file to include the class.
 
 // *** Comment out PLUGIN1 above AND uncomment the following two lines to enable the sample plugin ***
-#define PLUGIN1                    OFF //    OFF, Specify the class instance (same as plugin directory name) to enable.    Option
+//#define PLUGIN1                    sample //    OFF, Specify the class instance (same as plugin directory name) to enable.    Option
 //#include "sample/Sample.h"                //         Specify the header file to include the class.
-//#define PLUGIN1 website
-//#include "website/Website.h"
+
 #define PLUGIN2                       OFF //    OFF, Specify the class instance (same as plugin directory name) to enable.    Option
 //#include "plugin2/Name.h"               //         Specify the header file to include the class.
 
